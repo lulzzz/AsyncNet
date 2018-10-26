@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 
 namespace AsyncNet.Tcp
 {
@@ -9,5 +10,9 @@ namespace AsyncNet.Tcp
         public TimeSpan ConnectionTimeout { get; set; } = TimeSpan.Zero;
 
         public int MaxSendQueuePerPeerSize { get; set; } = 10000;
+
+        public IPAddress IPAddress { get; set; } = IPAddress.Any;
+
+        public int Port { get; set; }
     }
 }

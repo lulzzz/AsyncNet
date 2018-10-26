@@ -13,7 +13,10 @@ namespace AsyncNet.Tcp
     {
         private readonly AsyncTcpServerConfig config;
 
-        public AsyncTcpServer() : this(new AsyncTcpServerConfig())
+        public AsyncTcpServer(int port) : this(new AsyncTcpServerConfig()
+            {
+                Port = port
+            })
         {
         }
 
@@ -23,9 +26,15 @@ namespace AsyncNet.Tcp
             {
                 ConnectionTimeout = config.ConnectionTimeout,
                 ReceiveBufferSize = config.ReceiveBufferSize,
-                MaxSendQueuePerPeerSize = config.MaxSendQueuePerPeerSize
+                MaxSendQueuePerPeerSize = config.MaxSendQueuePerPeerSize,
+                IPAddress = config.IPAddress,
+                Port = config.Port
             };
         }
+
+        public event EventHandler<ServerStartedEventArgs> ServerStarted;
+
+        public event EventHandler<ServerStoppedEventArgs> ServerStopped;
 
         public event EventHandler<DataReceivedEventArgs> DataReceived;
 
@@ -35,45 +44,51 @@ namespace AsyncNet.Tcp
 
         public event EventHandler<ConnectionClosedEventArgs> ConnectionClosed;
 
+        public IObservable<ServerStartedData> WhenServerStarted => Observable.FromEventPattern<ServerStartedEventArgs>(
+                h => this.ServerStarted += h,
+                h => this.ServerStarted -= h)
+            .Select(x => x.EventArgs.ServerStartedData);
+
+        public IObservable<ServerStoppedData> WhenServerStopped => Observable.FromEventPattern<ServerStoppedEventArgs>(
+                h => this.ServerStopped += h,
+                h => this.ServerStopped -= h)
+            .Select(x => x.EventArgs.ServerStoppedData);
+
         public IObservable<TransportData> WhenDataReceived => Observable.FromEventPattern<DataReceivedEventArgs>(
                 h => this.DataReceived += h,
                 h => this.DataReceived -= h)
+            .TakeUntil(this.WhenServerStopped)
             .Select(x => x.EventArgs.TransportData);
 
         public IObservable<UnhandledErrorData> WhenUnhandledErrorOccured => Observable.FromEventPattern<UnhandledErrorEventArgs>(
                 h => this.UnhandledErrorOccured += h,
                 h => this.UnhandledErrorOccured -= h)
+            .TakeUntil(this.WhenServerStopped)
             .Select(x => x.EventArgs.UnhandledErrorData);
 
         public IObservable<ConnectionEstablishedData> WhenConnectionEstablished => Observable.FromEventPattern<ConnectionEstablishedEventArgs>(
                 h => this.ConnectionEstablished += h,
                 h => this.ConnectionEstablished -= h)
+            .TakeUntil(this.WhenServerStopped)
             .Select(x => x.EventArgs.ConnectionEstablishedData);
 
         public IObservable<ConnectionClosedData> WhenConnectionClosed => Observable.FromEventPattern<ConnectionClosedEventArgs>(
                 h => this.ConnectionClosed += h,
                 h => this.ConnectionClosed -= h)
+            .TakeUntil(this.WhenServerStopped)
             .Select(x => x.EventArgs.ConnectionClosedData);
 
-        public Task StartAsync(int port)
+        public Task StartAsync()
         {
-            return this.StartAsync(port, CancellationToken.None);
+            return this.StartAsync(CancellationToken.None);
         }
 
-        public Task StartAsync(int port, CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
-            return this.StartAsync(IPAddress.Any, port, cancellationToken);
-        }
-
-        public Task StartAsync(IPAddress ipAddress, int port, CancellationToken cancellationToken)
-        {
-            return this.StartAsync(new IPEndPoint(ipAddress, port), cancellationToken);
-        }
-
-        public async Task StartAsync(IPEndPoint ipEndPoint, CancellationToken cancellationToken)
-        {
-            var tcpListener = new TcpListener(ipEndPoint);
+            var tcpListener = new TcpListener(new IPEndPoint(this.config.IPAddress, this.config.Port));
             tcpListener.Start();
+
+            this.ServerStarted?.Invoke(this, new ServerStartedEventArgs(new ServerStartedData(this.config.IPAddress, this.config.Port)));
 
             try
             {
@@ -82,6 +97,8 @@ namespace AsyncNet.Tcp
             finally
             {
                 tcpListener.Stop();
+
+                this.ServerStopped?.Invoke(this, new ServerStoppedEventArgs(new ServerStoppedData(this.config.IPAddress, this.config.Port)));
             }
         }
 

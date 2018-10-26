@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2046
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncNet.Core", "AsyncNet.Core\AsyncNet.Core.csproj", "{272DDCE5-6E32-4DD0-9B02-2F0917B91664}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncNet.Core", "AsyncNet.Core\AsyncNet.Core.csproj", "{272DDCE5-6E32-4DD0-9B02-2F0917B91664}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncNet.Tcp", "AsyncNet.Tcp\AsyncNet.Tcp.csproj", "{633B3BA7-0915-4340-AB3D-EFDF08C6C348}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncNet.Tcp", "AsyncNet.Tcp\AsyncNet.Tcp.csproj", "{633B3BA7-0915-4340-AB3D-EFDF08C6C348}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
