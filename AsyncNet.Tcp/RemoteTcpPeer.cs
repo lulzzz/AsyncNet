@@ -47,6 +47,8 @@ namespace AsyncNet.Tcp
                 h => this.ConnectionClosed -= h)
             .Select(x => x.EventArgs.ConnectionClosedData);
 
+        public IDisposable CustomData { get; set; }
+
         public Task<bool> SendAsync(byte[] data)
         {
             return this.SendAsync(data, CancellationToken.None);
@@ -96,6 +98,7 @@ namespace AsyncNet.Tcp
             try
             {
                 this.CancellationTokenSource.Cancel();
+                this.CustomData?.Dispose();
             }
             catch (Exception)
             {

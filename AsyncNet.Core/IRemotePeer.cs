@@ -17,6 +17,11 @@ namespace AsyncNet.Core
 
         IPEndPoint IPEndPoint { get; }
 
+        /// <summary>
+        /// Any object assigned to this property will be disposed with the remote peer
+        /// </summary>
+        IDisposable CustomData { get; set; }
+
         Task<bool> SendAsync(byte[] data);
 
         Task<bool> SendAsync(byte[] data, CancellationToken cancellationToken);

@@ -5,9 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using System.Reactive.Linq;
-using AsyncNet.Core;
 using System.Net.Security;
 using System.Security.Authentication;
+using AsyncNet.Core;
 
 namespace AsyncNet.Tcp.Server
 {
