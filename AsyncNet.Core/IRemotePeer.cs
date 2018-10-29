@@ -30,6 +30,10 @@ namespace AsyncNet.Core
 
         Task<bool> SendAsync(byte[] data, int offset, int count, CancellationToken cancellationToken);
 
-        void Disconnect();
+        bool Post(byte[] data);
+
+        bool Post(byte[] data, int offset, int count);
+
+        void Disconnect(ConnectionCloseReason reason);
     }
 }

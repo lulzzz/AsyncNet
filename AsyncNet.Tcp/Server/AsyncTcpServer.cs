@@ -207,13 +207,14 @@ namespace AsyncNet.Tcp.Server
 
         protected async Task HandleRemotePeerAsync(RemoteTcpPeer remoteTcpPeer, CancellationToken cancellationToken)
         {
-            var connectionCloseReason = await this.ReceiveFromRemotePeerAsync(remoteTcpPeer, cancellationToken).ConfigureAwait(false);
-            var connectionClosedEventArgs = new ConnectionClosedEventArgs(new ConnectionClosedData(remoteTcpPeer, connectionCloseReason));
+            await this.ReceiveFromRemotePeerAsync(remoteTcpPeer, cancellationToken).ConfigureAwait(false);
+
+            var connectionClosedEventArgs = new ConnectionClosedEventArgs(new ConnectionClosedData(remoteTcpPeer, remoteTcpPeer.ConnectionCloseReason));
             await this.OnConnectionClosedAsync(remoteTcpPeer, connectionClosedEventArgs)
                 .ConfigureAwait(false);
         }
 
-        protected async Task<ConnectionCloseReason> ReceiveFromRemotePeerAsync(RemoteTcpPeer remoteTcpPeer, CancellationToken cancellationToken)
+        protected async Task ReceiveFromRemotePeerAsync(RemoteTcpPeer remoteTcpPeer, CancellationToken cancellationToken)
         {
             Defragmentation.ReadFrameResult readFrameResult = null;
 
@@ -234,27 +235,32 @@ namespace AsyncNet.Tcp.Server
                     var unhandledErrorEventArgs = new UnhandledErrorEventArgs(new UnhandledErrorData(ex.InnerException));
                     this.OnUnhandledError(unhandledErrorEventArgs);
 
-                    return ConnectionCloseReason.Unknown;
+                    remoteTcpPeer.ConnectionCloseReason = ConnectionCloseReason.Unknown;
+                    return;
                 }
                 catch (OperationCanceledException)
                 {
                     if (!cancellationToken.IsCancellationRequested)
                     {
-                        return ConnectionCloseReason.Timeout;
+                        remoteTcpPeer.ConnectionCloseReason = ConnectionCloseReason.Timeout;
+                        return;
                     }
                     else
                     {
-                        return ConnectionCloseReason.LocalShutdown;
+                        remoteTcpPeer.ConnectionCloseReason = ConnectionCloseReason.LocalShutdown;
+                        return;
                     }
                 }
                 catch (Exception)
                 {
-                    return ConnectionCloseReason.Unknown;
+                    remoteTcpPeer.ConnectionCloseReason = ConnectionCloseReason.Unknown;
+                    return;
                 }
 
                 if (readFrameResult.ReadFrameStatus == Defragmentation.ReadFrameStatus.StreamClosed)
                 {
-                    return ConnectionCloseReason.RemoteShutdown;
+                    remoteTcpPeer.ConnectionCloseReason = ConnectionCloseReason.RemoteShutdown;
+                    return;
                 }
                 else if (readFrameResult.ReadFrameStatus == Defragmentation.ReadFrameStatus.FrameDropped)
                 {
@@ -270,7 +276,7 @@ namespace AsyncNet.Tcp.Server
                     .ConfigureAwait(false);
             }
 
-            return ConnectionCloseReason.LocalShutdown;
+            remoteTcpPeer.ConnectionCloseReason = ConnectionCloseReason.LocalShutdown;
         }
 
         protected async Task SendToRemotePeerAsync(RemoteTcpPeerOutgoingMessage outgoingMessage)

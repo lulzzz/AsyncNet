@@ -12,6 +12,8 @@ namespace AsyncNet.Tcp
 {
     public class RemoteTcpPeer : IRemotePeer
     {
+        private ConnectionCloseReason connectionCloseReason;
+
         public RemoteTcpPeer(
             Stream tcpStream,
             IPEndPoint ipEndPoint,
@@ -48,6 +50,12 @@ namespace AsyncNet.Tcp
             .Select(x => x.EventArgs.ConnectionClosedData);
 
         public IDisposable CustomData { get; set; }
+
+        public ConnectionCloseReason ConnectionCloseReason
+        {
+            get => this.connectionCloseReason;
+            set => this.connectionCloseReason = this.connectionCloseReason != ConnectionCloseReason.NoReason ? this.connectionCloseReason : value;
+        }
 
         public Task<bool> SendAsync(byte[] data)
         {
@@ -88,15 +96,26 @@ namespace AsyncNet.Tcp
             return result;
         }
 
-        public void Dispose()
+        public bool Post(byte[] data) => this.Post(data, 0, data.Length);
+
+        public bool Post(byte[] data, int offset, int count)
         {
-            this.Disconnect();
+            return this.SendQueue.Post(new RemoteTcpPeerOutgoingMessage(
+                            this,
+                            this.CancellationTokenSource.Token,
+                            new IOBuffer(data, offset, count)));
         }
 
-        public void Disconnect()
+        public void Dispose()
+        {
+            this.Disconnect(this.ConnectionCloseReason);
+        }
+
+        public void Disconnect(ConnectionCloseReason reason)
         {
             try
             {
+                this.ConnectionCloseReason = reason;
                 this.CancellationTokenSource.Cancel();
                 this.CustomData?.Dispose();
             }

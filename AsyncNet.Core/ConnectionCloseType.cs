@@ -2,9 +2,10 @@
 {
     public enum ConnectionCloseReason
     {
-        RemoteShutdown = 0,
-        LocalShutdown = 1,
-        Timeout = 2,
-        Unknown = 3
+        NoReason = 0,
+        RemoteShutdown = 1,
+        LocalShutdown = 2,
+        Timeout = 3,
+        Unknown = 4
     }
 }
