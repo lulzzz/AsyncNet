@@ -1,4 +1,4 @@
-﻿namespace AsyncNet.Tcp
+﻿namespace AsyncNet.Core
 {
     public enum ConnectionCloseReason
     {

@@ -1,6 +1,4 @@
-﻿using AsyncNet.Core;
-
-namespace AsyncNet.Tcp
+﻿namespace AsyncNet.Core
 {
     public class ConnectionEstablishedData : ITransportContext
     {

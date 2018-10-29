@@ -7,6 +7,14 @@ namespace AsyncNet.Core
 {
     public interface IRemotePeer : IDisposable
     {
+        event EventHandler<FrameArrivedEventArgs> FrameArrived;
+
+        event EventHandler<ConnectionClosedEventArgs> ConnectionClosed;
+
+        IObservable<FrameArrivedData> WhenFrameArrived { get; }
+
+        IObservable<ConnectionClosedData> WhenConnectionClosed { get; }
+
         IPEndPoint IPEndPoint { get; }
 
         Task<bool> SendAsync(byte[] data);
@@ -16,5 +24,7 @@ namespace AsyncNet.Core
         Task<bool> SendAsync(byte[] data, int offset, int count);
 
         Task<bool> SendAsync(byte[] data, int offset, int count, CancellationToken cancellationToken);
+
+        void Disconnect();
     }
 }

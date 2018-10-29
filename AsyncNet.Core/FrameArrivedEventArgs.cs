@@ -4,11 +4,11 @@ namespace AsyncNet.Core
 {
     public class FrameArrivedEventArgs : EventArgs
     {
-        public FrameArrivedEventArgs(TransportData transportData)
+        public FrameArrivedEventArgs(FrameArrivedData frameArrivedData)
         {
-            this.TransportData = transportData;
+            this.FrameArrivedData = frameArrivedData;
         }
 
-        public TransportData TransportData { get; }
+        public FrameArrivedData FrameArrivedData { get; }
     }
 }

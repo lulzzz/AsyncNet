@@ -2,13 +2,15 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using AsyncNet.Core;
 
 namespace AsyncNet.Tcp
 {
-    public class RemoteTcpPeer : IRemoteTcpPeer
+    public class RemoteTcpPeer : IRemotePeer
     {
         public RemoteTcpPeer(
             Stream tcpStream,
@@ -22,6 +24,10 @@ namespace AsyncNet.Tcp
             this.CancellationTokenSource = cts;
         }
 
+        public event EventHandler<FrameArrivedEventArgs> FrameArrived;
+
+        public event EventHandler<ConnectionClosedEventArgs> ConnectionClosed;
+
         public Stream TcpStream { get; }
 
         public IPEndPoint IPEndPoint { get; }
@@ -29,6 +35,17 @@ namespace AsyncNet.Tcp
         public ActionBlock<RemoteTcpPeerOutgoingMessage> SendQueue { get; }
 
         public CancellationTokenSource CancellationTokenSource { get; }
+
+        public IObservable<FrameArrivedData> WhenFrameArrived => Observable.FromEventPattern<FrameArrivedEventArgs>(
+                h => this.FrameArrived += h,
+                h => this.FrameArrived -= h)
+            .TakeUntil(this.WhenConnectionClosed)
+            .Select(x => x.EventArgs.FrameArrivedData);
+
+        public IObservable<ConnectionClosedData> WhenConnectionClosed => Observable.FromEventPattern<ConnectionClosedEventArgs>(
+                h => this.ConnectionClosed += h,
+                h => this.ConnectionClosed -= h)
+            .Select(x => x.EventArgs.ConnectionClosedData);
 
         public Task<bool> SendAsync(byte[] data)
         {
@@ -84,6 +101,16 @@ namespace AsyncNet.Tcp
             {
                 return;
             }
+        }
+
+        public void OnFrameArrived(FrameArrivedEventArgs e)
+        {
+            this.FrameArrived?.Invoke(this, e);
+        }
+
+        public void OnConnectionClosed(ConnectionClosedEventArgs e)
+        {
+            this.ConnectionClosed?.Invoke(this, e);
         }
     }
 }

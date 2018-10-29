@@ -9,7 +9,7 @@
     <PackageTags>asyncnet.tcp async network networking tcp tcpserver</PackageTags>
     <VersionPrefix>1.0.0</VersionPrefix>
     <VersionSuffix>alpha06</VersionSuffix>
-    <PackageReleaseNotes>Defragmentation breaking changes</PackageReleaseNotes>
+    <PackageReleaseNotes>Breaking changes. Moved types to AsyncNet.Core</PackageReleaseNotes>
     <PackageLicenseUrl>https://github.com/bartlomiej-stys/AsyncNet/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/bartlomiej-stys/AsyncNet</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

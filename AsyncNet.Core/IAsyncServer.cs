@@ -14,13 +14,21 @@ namespace AsyncNet.Core
 
         event EventHandler<UnhandledErrorEventArgs> UnhandledErrorOccured;
 
+        event EventHandler<ConnectionEstablishedEventArgs> ConnectionEstablished;
+
+        event EventHandler<ConnectionClosedEventArgs> ConnectionClosed;
+
         IObservable<ServerStartedData> WhenServerStarted { get; }
 
         IObservable<ServerStoppedData> WhenServerStopped { get; }
 
-        IObservable<TransportData> WhenFrameArrived { get; }
+        IObservable<FrameArrivedData> WhenFrameArrived { get; }
 
         IObservable<UnhandledErrorData> WhenUnhandledErrorOccured { get; }
+
+        IObservable<ConnectionEstablishedData> WhenConnectionEstablished { get; }
+
+        IObservable<ConnectionClosedData> WhenConnectionClosed { get; }
 
         Task StartAsync();
 

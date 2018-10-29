@@ -1,8 +1,8 @@
 ﻿namespace AsyncNet.Core
 {
-    public class TransportData : ITransportContext
+    public class FrameArrivedData : ITransportContext
     {
-        public TransportData(IRemotePeer remotePeer, byte[] frameData)
+        public FrameArrivedData(IRemotePeer remotePeer, byte[] frameData)
         {
             this.RemotePeer = remotePeer;
             this.FrameData = frameData;

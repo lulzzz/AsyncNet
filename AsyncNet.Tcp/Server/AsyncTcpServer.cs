@@ -11,7 +11,7 @@ using System.Security.Authentication;
 
 namespace AsyncNet.Tcp.Server
 {
-    public class AsyncTcpServer : IAsyncTcpServer
+    public class AsyncTcpServer : IAsyncServer
     {
         private readonly AsyncTcpServerConfig config;
 
@@ -57,11 +57,11 @@ namespace AsyncNet.Tcp.Server
                 h => this.ServerStopped -= h)
             .Select(x => x.EventArgs.ServerStoppedData);
 
-        public IObservable<TransportData> WhenFrameArrived => Observable.FromEventPattern<FrameArrivedEventArgs>(
+        public IObservable<FrameArrivedData> WhenFrameArrived => Observable.FromEventPattern<FrameArrivedEventArgs>(
                 h => this.FrameArrived += h,
                 h => this.FrameArrived -= h)
             .TakeUntil(this.WhenServerStopped)
-            .Select(x => x.EventArgs.TransportData);
+            .Select(x => x.EventArgs.FrameArrivedData);
 
         public IObservable<UnhandledErrorData> WhenUnhandledErrorOccured => Observable.FromEventPattern<UnhandledErrorEventArgs>(
                 h => this.UnhandledErrorOccured += h,
@@ -209,7 +209,8 @@ namespace AsyncNet.Tcp.Server
         {
             var connectionCloseReason = await this.ReceiveFromRemotePeerAsync(remoteTcpPeer, cancellationToken).ConfigureAwait(false);
             var connectionClosedEventArgs = new ConnectionClosedEventArgs(new ConnectionClosedData(remoteTcpPeer, connectionCloseReason));
-            this.OnConnectionClosed(connectionClosedEventArgs);
+            await this.OnConnectionClosedAsync(remoteTcpPeer, connectionClosedEventArgs)
+                .ConfigureAwait(false);
         }
 
         protected async Task<ConnectionCloseReason> ReceiveFromRemotePeerAsync(RemoteTcpPeer remoteTcpPeer, CancellationToken cancellationToken)
@@ -262,10 +263,11 @@ namespace AsyncNet.Tcp.Server
                     continue;
                 }
 
-                var transportData = new TransportData(remoteTcpPeer, readFrameResult.FrameData);
+                var transportData = new FrameArrivedData(remoteTcpPeer, readFrameResult.FrameData);
                 var frameArrivedEventArgs = new FrameArrivedEventArgs(transportData);
 
-                this.OnFrameArrived(frameArrivedEventArgs);
+                await this.OnFrameArrivedAsync(remoteTcpPeer, frameArrivedEventArgs)
+                    .ConfigureAwait(false);
             }
 
             return ConnectionCloseReason.LocalShutdown;
@@ -301,11 +303,14 @@ namespace AsyncNet.Tcp.Server
             }
         }
 
-        protected void OnFrameArrived(FrameArrivedEventArgs e)
+        protected async Task OnFrameArrivedAsync(RemoteTcpPeer remoteTcpPeer, FrameArrivedEventArgs e)
         {
             try
             {
-                this.FrameArrived?.Invoke(this, e);
+                await Task.WhenAll(
+                    Task.Run(() => remoteTcpPeer.OnFrameArrived(e)), 
+                    Task.Run(() => this.FrameArrived?.Invoke(this, e)))
+                    .ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -315,11 +320,14 @@ namespace AsyncNet.Tcp.Server
             }
         }
 
-        protected void OnConnectionClosed(ConnectionClosedEventArgs e)
+        protected async Task OnConnectionClosedAsync(RemoteTcpPeer remoteTcpPeer, ConnectionClosedEventArgs e)
         {
             try
             {
-                this.ConnectionClosed?.Invoke(this, e);
+                await Task.WhenAll(
+                    Task.Run(() => remoteTcpPeer.OnConnectionClosed(e)),
+                    Task.Run(() => this.ConnectionClosed?.Invoke(this, e)))
+                    .ConfigureAwait(false);
             }
             catch (Exception ex)
             {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AsyncNet.Tcp
+namespace AsyncNet.Core
 {
     public class ConnectionEstablishedEventArgs : EventArgs
     {
