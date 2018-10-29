@@ -2,9 +2,9 @@
 
 namespace AsyncNet.Core
 {
-    public class DataReceivedEventArgs : EventArgs
+    public class FrameArrivedEventArgs : EventArgs
     {
-        public DataReceivedEventArgs(TransportData transportData)
+        public FrameArrivedEventArgs(TransportData transportData)
         {
             this.TransportData = transportData;
         }

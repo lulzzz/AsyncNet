@@ -10,7 +10,7 @@ namespace AsyncNet.Core
 
         event EventHandler<ServerStoppedEventArgs> ServerStopped;
 
-        event EventHandler<DataReceivedEventArgs> DataReceived;
+        event EventHandler<FrameArrivedEventArgs> FrameArrived;
 
         event EventHandler<UnhandledErrorEventArgs> UnhandledErrorOccured;
 
@@ -18,7 +18,7 @@ namespace AsyncNet.Core
 
         IObservable<ServerStoppedData> WhenServerStopped { get; }
 
-        IObservable<TransportData> WhenDataReceived { get; }
+        IObservable<TransportData> WhenFrameArrived { get; }
 
         IObservable<UnhandledErrorData> WhenUnhandledErrorOccured { get; }
 

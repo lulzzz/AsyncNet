@@ -8,8 +8,8 @@
     <Owners>bartlomiej.stys</Owners>
     <PackageTags>asyncnet.tcp async network networking tcp tcpserver</PackageTags>
     <VersionPrefix>1.0.0</VersionPrefix>
-    <VersionSuffix>alpha03</VersionSuffix>
-    <PackageReleaseNotes>Another breaking API changes and fixes</PackageReleaseNotes>
+    <VersionSuffix>alpha04</VersionSuffix>
+    <PackageReleaseNotes>Yet another breaking changes + addedd message defragmentation / deframing and SSL support</PackageReleaseNotes>
     <PackageLicenseUrl>https://github.com/bartlomiej-stys/AsyncNet/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/bartlomiej-stys/AsyncNet</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

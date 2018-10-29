@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using System.Reactive.Linq;
 using AsyncNet.Core;
+using System.Net.Security;
+using System.Security.Authentication;
 
-namespace AsyncNet.Tcp
+namespace AsyncNet.Tcp.Server
 {
     public class AsyncTcpServer : IAsyncTcpServer
     {
@@ -24,11 +26,12 @@ namespace AsyncNet.Tcp
         {
             this.config = new AsyncTcpServerConfig()
             {
+                ProtocolFrameDefragmenter = config.ProtocolFrameDefragmenter,
                 ConnectionTimeout = config.ConnectionTimeout,
-                ReceiveBufferSize = config.ReceiveBufferSize,
                 MaxSendQueuePerPeerSize = config.MaxSendQueuePerPeerSize,
                 IPAddress = config.IPAddress,
-                Port = config.Port
+                Port = config.Port,
+                X509Certificate = config.X509Certificate
             };
         }
 
@@ -36,7 +39,7 @@ namespace AsyncNet.Tcp
 
         public event EventHandler<ServerStoppedEventArgs> ServerStopped;
 
-        public event EventHandler<DataReceivedEventArgs> DataReceived;
+        public event EventHandler<FrameArrivedEventArgs> FrameArrived;
 
         public event EventHandler<UnhandledErrorEventArgs> UnhandledErrorOccured;
 
@@ -54,9 +57,9 @@ namespace AsyncNet.Tcp
                 h => this.ServerStopped -= h)
             .Select(x => x.EventArgs.ServerStoppedData);
 
-        public IObservable<TransportData> WhenDataReceived => Observable.FromEventPattern<DataReceivedEventArgs>(
-                h => this.DataReceived += h,
-                h => this.DataReceived -= h)
+        public IObservable<TransportData> WhenFrameArrived => Observable.FromEventPattern<FrameArrivedEventArgs>(
+                h => this.FrameArrived += h,
+                h => this.FrameArrived -= h)
             .TakeUntil(this.WhenServerStopped)
             .Select(x => x.EventArgs.TransportData);
 
@@ -123,7 +126,7 @@ namespace AsyncNet.Tcp
         protected async void HandleNewTcpClientAsync(TcpClient tcpClient, CancellationToken token)
         {
             using (tcpClient)
-            using (var linkedSource = CancellationTokenSource.CreateLinkedTokenSource(token))
+            using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token))
             {
                 var sendQueue = new ActionBlock<RemoteTcpPeerOutgoingMessage>(
                                     this.SendToRemotePeerAsync,
@@ -132,17 +135,45 @@ namespace AsyncNet.Tcp
                                         EnsureOrdered = true,
                                         BoundedCapacity = this.config.MaxSendQueuePerPeerSize,
                                         MaxDegreeOfParallelism = 1,
-                                        CancellationToken = linkedSource.Token
+                                        CancellationToken = linkedCts.Token
                                     });
                 
                 RemoteTcpPeer remoteTcpPeer;
+                SslStream sslStream = null;
 
                 try
                 {
-                    remoteTcpPeer = new RemoteTcpPeer(
-                        tcpClient, 
-                        sendQueue, 
-                        linkedSource);
+                    if (this.config.X509Certificate != null)
+                    {
+                        sslStream = new SslStream(tcpClient.GetStream(), false);
+
+                        await sslStream.AuthenticateAsServerWithCancellationAsync(this.config.X509Certificate, linkedCts.Token)
+                            .ConfigureAwait(false);
+
+                        remoteTcpPeer = new RemoteTcpPeer(
+                            sslStream,
+                            tcpClient.Client.RemoteEndPoint as IPEndPoint,
+                            sendQueue,
+                            linkedCts);
+                    }
+                    else
+                    {
+                        remoteTcpPeer = new RemoteTcpPeer(
+                            tcpClient.GetStream(),
+                            tcpClient.Client.RemoteEndPoint as IPEndPoint,
+                            sendQueue,
+                            linkedCts);
+                    }
+                }
+                catch (AuthenticationException ex)
+                {
+                    var unhandledErrorEventArgs = new UnhandledErrorEventArgs(new UnhandledErrorData(ex));
+                    this.OnUnhandledError(unhandledErrorEventArgs);
+
+                    sendQueue.Complete();
+                    sslStream?.Dispose();
+
+                    return;
                 }
                 catch (Exception)
                 {
@@ -150,46 +181,59 @@ namespace AsyncNet.Tcp
                     return;
                 }
 
-                var connectionEstablishedEventArgs = new ConnectionEstablishedEventArgs(new ConnectionEstablishedData(remoteTcpPeer));
-                this.OnConnectionEstablished(connectionEstablishedEventArgs);
-
-                try
+                using (remoteTcpPeer)
                 {
-                    await this.HandleRemotePeerAsync(remoteTcpPeer, linkedSource.Token).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    var unhandledErrorEventArgs = new UnhandledErrorEventArgs(new UnhandledErrorData(ex));
+                    var connectionEstablishedEventArgs = new ConnectionEstablishedEventArgs(new ConnectionEstablishedData(remoteTcpPeer));
+                    this.OnConnectionEstablished(connectionEstablishedEventArgs);
 
-                    this.OnUnhandledError(unhandledErrorEventArgs);
-                }
+                    try
+                    {
+                        await this.HandleRemotePeerAsync(remoteTcpPeer, linkedCts.Token).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        var unhandledErrorEventArgs = new UnhandledErrorEventArgs(new UnhandledErrorData(ex));
 
-                sendQueue.Complete();
+                        this.OnUnhandledError(unhandledErrorEventArgs);
+                    }
+                    finally
+                    {
+                        sendQueue.Complete();
+                        sslStream?.Dispose();
+                    }
+                }
             }
         }
 
         protected async Task HandleRemotePeerAsync(RemoteTcpPeer remoteTcpPeer, CancellationToken cancellationToken)
         {
-            var connectionCloseType = await this.ReceiveFromRemotePeerAsync(remoteTcpPeer, cancellationToken).ConfigureAwait(false);
-            
-            var connectionClosedEventArgs = new ConnectionClosedEventArgs(new ConnectionClosedData(remoteTcpPeer, connectionCloseType));
+            var connectionCloseReason = await this.ReceiveFromRemotePeerAsync(remoteTcpPeer, cancellationToken).ConfigureAwait(false);
+            var connectionClosedEventArgs = new ConnectionClosedEventArgs(new ConnectionClosedData(remoteTcpPeer, connectionCloseReason));
             this.OnConnectionClosed(connectionClosedEventArgs);
         }
 
         protected async Task<ConnectionCloseReason> ReceiveFromRemotePeerAsync(RemoteTcpPeer remoteTcpPeer, CancellationToken cancellationToken)
         {
+            Defragmentation.ReadFrameResult readFrameResult = null;
+
             while (!cancellationToken.IsCancellationRequested)
             {
-                var buffer = new byte[this.config.ReceiveBufferSize];
-                int readLength;
-
                 try
                 {
                     using (var timeoutCts = this.config.ConnectionTimeout == TimeSpan.Zero ? new CancellationTokenSource() : new CancellationTokenSource(this.config.ConnectionTimeout))
                     using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, cancellationToken))
                     {
-                        readLength = await remoteTcpPeer.TcpClient.GetStream().ReadWithRealCancellationAsync(buffer, 0, buffer.Length, linkedCts.Token).ConfigureAwait(false);
+                        readFrameResult = await this.config.ProtocolFrameDefragmenter
+                            .ReadFrameAsync(remoteTcpPeer.TcpStream, readFrameResult?.LeftOvers, linkedCts.Token)
+                            .ConfigureAwait(false);
                     }
+                }
+                catch (AsyncNetUnhandledException ex)
+                {
+                    var unhandledErrorEventArgs = new UnhandledErrorEventArgs(new UnhandledErrorData(ex.InnerException));
+                    this.OnUnhandledError(unhandledErrorEventArgs);
+
+                    return ConnectionCloseReason.Unknown;
                 }
                 catch (OperationCanceledException)
                 {
@@ -197,40 +241,47 @@ namespace AsyncNet.Tcp
                     {
                         return ConnectionCloseReason.Timeout;
                     }
-
-                    continue;
+                    else
+                    {
+                        return ConnectionCloseReason.LocalShutdown;
+                    }
                 }
                 catch (Exception)
                 {
                     return ConnectionCloseReason.Unknown;
                 }
 
-                if (readLength < 1)
+                if (readFrameResult.ReadFrameStatus == Defragmentation.ReadFrameStatus.StreamClosed)
                 {
                     return ConnectionCloseReason.RemoteShutdown;
                 }
+                else if (readFrameResult.ReadFrameStatus == Defragmentation.ReadFrameStatus.FrameDropped)
+                {
+                    readFrameResult = null;
 
-                var receivedData = new ReceivedData(buffer, readLength);
-                var transportData = new TransportData(remoteTcpPeer, receivedData);
-                var dataReceivedEventArgs = new DataReceivedEventArgs(transportData);
+                    continue;
+                }
 
-                this.OnDataReceived(dataReceivedEventArgs);
+                var transportData = new TransportData(remoteTcpPeer, readFrameResult.FrameData);
+                var frameArrivedEventArgs = new FrameArrivedEventArgs(transportData);
+
+                this.OnFrameArrived(frameArrivedEventArgs);
             }
 
             return ConnectionCloseReason.LocalShutdown;
         }
 
-        protected async Task SendToRemotePeerAsync(RemoteTcpPeerOutgoingMessage remotePeerSendItem)
+        protected async Task SendToRemotePeerAsync(RemoteTcpPeerOutgoingMessage outgoingMessage)
         {
             try
             {
-                await remotePeerSendItem.RemoteTcpPeer.TcpClient.GetStream().WriteWithRealCancellationAsync(
-                    remotePeerSendItem.OutgoingMessage.Buffer,
-                    remotePeerSendItem.OutgoingMessage.Offset,
-                    remotePeerSendItem.OutgoingMessage.Count,
-                    remotePeerSendItem.CancellationToken).ConfigureAwait(false);
+                await outgoingMessage.RemoteTcpPeer.TcpStream.WriteWithRealCancellationAsync(
+                    outgoingMessage.IOBuffer.Buffer,
+                    outgoingMessage.IOBuffer.Offset,
+                    outgoingMessage.IOBuffer.Count,
+                    outgoingMessage.CancellationToken).ConfigureAwait(false);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return;
             }
@@ -250,11 +301,11 @@ namespace AsyncNet.Tcp
             }
         }
 
-        protected void OnDataReceived(DataReceivedEventArgs e)
+        protected void OnFrameArrived(FrameArrivedEventArgs e)
         {
             try
             {
-                this.DataReceived?.Invoke(this, e);
+                this.FrameArrived?.Invoke(this, e);
             }
             catch (Exception ex)
             {
@@ -280,7 +331,13 @@ namespace AsyncNet.Tcp
 
         protected void OnUnhandledError(UnhandledErrorEventArgs e)
         {
-            this.UnhandledErrorOccured?.Invoke(this, e);
+            try
+            {
+                this.UnhandledErrorOccured?.Invoke(this, e);
+            }
+            catch
+            {
+            }
         }
     }
 }

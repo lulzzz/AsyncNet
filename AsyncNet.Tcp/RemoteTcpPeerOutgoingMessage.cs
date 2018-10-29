@@ -7,10 +7,10 @@ namespace AsyncNet.Tcp
         public RemoteTcpPeerOutgoingMessage(
             RemoteTcpPeer remoteTcpPeer, 
             CancellationToken cancellationToken, 
-            OutgoingMessage outgoingMessage)
+            IOBuffer ioBuffer)
         {
             this.RemoteTcpPeer = remoteTcpPeer;
-            this.OutgoingMessage = outgoingMessage;
+            this.IOBuffer = ioBuffer;
             this.CancellationToken = cancellationToken;
         }
 
@@ -18,6 +18,6 @@ namespace AsyncNet.Tcp
 
         public CancellationToken CancellationToken { get; }
 
-        public OutgoingMessage OutgoingMessage { get; }
+        public IOBuffer IOBuffer { get; }
     }
 }

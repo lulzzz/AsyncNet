@@ -1,7 +1,7 @@
 ﻿using System;
 using AsyncNet.Core;
 
-namespace AsyncNet.Tcp
+namespace AsyncNet.Tcp.Server
 {
     public interface IAsyncTcpServer : IAsyncServer
     {

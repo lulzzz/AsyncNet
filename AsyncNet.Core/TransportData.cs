@@ -2,14 +2,14 @@
 {
     public class TransportData : ITransportContext
     {
-        public TransportData(IRemotePeer remotePeer, ReceivedData receivedData)
+        public TransportData(IRemotePeer remotePeer, byte[] frameData)
         {
             this.RemotePeer = remotePeer;
-            this.ReceivedData = receivedData;
+            this.FrameData = frameData;
         }
 
         public IRemotePeer RemotePeer { get; }
 
-        public ReceivedData ReceivedData { get; }
+        public byte[] FrameData { get; }
     }
 }

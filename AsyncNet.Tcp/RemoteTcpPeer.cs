@@ -1,30 +1,34 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using AsyncNet.Core;
 
 namespace AsyncNet.Tcp
 {
     public class RemoteTcpPeer : IRemoteTcpPeer
     {
-        public RemoteTcpPeer(TcpClient tcpClient, ActionBlock<RemoteTcpPeerOutgoingMessage> sendQueue, CancellationTokenSource cts)
+        public RemoteTcpPeer(
+            Stream tcpStream,
+            IPEndPoint ipEndPoint,
+            ActionBlock<RemoteTcpPeerOutgoingMessage> sendQueue, 
+            CancellationTokenSource cts)
         {
-            this.CancellationTokenSource = cts;
-            this.TcpClient = tcpClient;
-            this.IPEndPoint = tcpClient.Client.RemoteEndPoint as IPEndPoint;
+            this.TcpStream = tcpStream;
+            this.IPEndPoint = ipEndPoint;
             this.SendQueue = sendQueue;
+            this.CancellationTokenSource = cts;
         }
 
-        public CancellationTokenSource CancellationTokenSource { get; }
-
-        public TcpClient TcpClient { get; }
+        public Stream TcpStream { get; }
 
         public IPEndPoint IPEndPoint { get; }
 
         public ActionBlock<RemoteTcpPeerOutgoingMessage> SendQueue { get; }
+
+        public CancellationTokenSource CancellationTokenSource { get; }
 
         public Task<bool> SendAsync(byte[] data)
         {
@@ -53,7 +57,7 @@ namespace AsyncNet.Tcp
                         new RemoteTcpPeerOutgoingMessage(
                             this, 
                             this.CancellationTokenSource.Token, 
-                            new OutgoingMessage(data, offset, count)), 
+                            new IOBuffer(data, offset, count)), 
                         linkedCts.Token).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException)
