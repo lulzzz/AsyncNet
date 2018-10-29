@@ -8,8 +8,8 @@
     <Owners>bartlomiej.stys</Owners>
     <PackageTags>asyncnet.core async network networking</PackageTags>
     <VersionPrefix>1.0.0</VersionPrefix>
-    <VersionSuffix>alpha04</VersionSuffix>
-    <PackageReleaseNotes>Yet another breaking changes</PackageReleaseNotes>
+    <VersionSuffix>alpha05</VersionSuffix>
+    <PackageReleaseNotes>Fixes</PackageReleaseNotes>
     <PackageLicenseUrl>https://github.com/bartlomiej-stys/AsyncNet/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/bartlomiej-stys/AsyncNet</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
