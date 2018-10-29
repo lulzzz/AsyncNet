@@ -109,6 +109,15 @@ namespace AsyncNet.Tcp
         public void Dispose()
         {
             this.Disconnect(this.ConnectionCloseReason);
+
+            try
+            {
+                this.CustomObject?.Dispose();
+            }
+            catch (Exception)
+            {
+                return;
+            }
         }
 
         public void Disconnect(ConnectionCloseReason reason)
@@ -117,7 +126,6 @@ namespace AsyncNet.Tcp
             {
                 this.ConnectionCloseReason = reason;
                 this.CancellationTokenSource.Cancel();
-                this.CustomObject?.Dispose();
             }
             catch (Exception)
             {
