@@ -20,7 +20,7 @@ namespace AsyncNet.Core
         /// <summary>
         /// Any object assigned to this property will be disposed with the remote peer
         /// </summary>
-        IDisposable CustomData { get; set; }
+        IDisposable CustomObject { get; set; }
 
         Task<bool> SendAsync(byte[] data);
 

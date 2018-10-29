@@ -8,8 +8,8 @@
     <Owners>bartlomiej.stys</Owners>
     <PackageTags>asyncnet.tcp async network networking tcp tcpserver</PackageTags>
     <VersionPrefix>1.0.0</VersionPrefix>
-    <VersionSuffix>alpha09</VersionSuffix>
-    <PackageReleaseNotes>Breaking changes. Added Post method to remote peer and redesigned connection close reason</PackageReleaseNotes>
+    <VersionSuffix>alpha10</VersionSuffix>
+    <PackageReleaseNotes>Breaking changes. Renamed remote peer CustomData to CustomObject</PackageReleaseNotes>
     <PackageLicenseUrl>https://github.com/bartlomiej-stys/AsyncNet/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/bartlomiej-stys/AsyncNet</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

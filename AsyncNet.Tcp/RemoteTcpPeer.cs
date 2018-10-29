@@ -49,7 +49,7 @@ namespace AsyncNet.Tcp
                 h => this.ConnectionClosed -= h)
             .Select(x => x.EventArgs.ConnectionClosedData);
 
-        public IDisposable CustomData { get; set; }
+        public IDisposable CustomObject { get; set; }
 
         public ConnectionCloseReason ConnectionCloseReason
         {
@@ -117,7 +117,7 @@ namespace AsyncNet.Tcp
             {
                 this.ConnectionCloseReason = reason;
                 this.CancellationTokenSource.Cancel();
-                this.CustomData?.Dispose();
+                this.CustomObject?.Dispose();
             }
             catch (Exception)
             {
