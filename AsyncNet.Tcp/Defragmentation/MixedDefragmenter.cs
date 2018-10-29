@@ -18,7 +18,7 @@ namespace AsyncNet.Tcp.Defragmentation
             this.readBufferLength = strategy.ReadBufferLength;
         }
 
-        public async Task<ReadFrameResult> ReadFrameAsync(Stream stream, byte[] leftOvers, CancellationToken cancellationToken)
+        public async Task<ReadFrameResult> ReadFrameAsync(RemoteTcpPeer remoteTcpPeer, byte[] leftOvers, CancellationToken cancellationToken)
         {
             byte[] frameBuffer;
             int readLength;
@@ -57,7 +57,7 @@ namespace AsyncNet.Tcp.Defragmentation
                     throw new AsyncNetUnhandledException(nameof(this.strategy.GetFrameLength), ex);
                 }
 
-                readLength = await stream.ReadWithRealCancellationAsync(frameBuffer, dataLength, this.readBufferLength, cancellationToken)
+                readLength = await remoteTcpPeer.TcpStream.ReadWithRealCancellationAsync(frameBuffer, dataLength, this.readBufferLength, cancellationToken)
                     .ConfigureAwait(false);
 
                 if (readLength < 1)
@@ -97,7 +97,7 @@ namespace AsyncNet.Tcp.Defragmentation
                     }
                 }
 
-                var open = await stream.ReadUntilBufferIsFullAsync(frameBuffer, dataLength, frameLength - dataLength, cancellationToken)
+                var open = await remoteTcpPeer.TcpStream.ReadUntilBufferIsFullAsync(frameBuffer, dataLength, frameLength - dataLength, cancellationToken)
                     .ConfigureAwait(false);
 
                 if (!open)

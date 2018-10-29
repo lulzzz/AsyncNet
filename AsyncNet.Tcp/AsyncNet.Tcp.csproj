@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Description>AsyncNet.Tcp is part of AsyncNet asynchronous networking library. AsyncNet.Tcp is designed for TCP networks</Description>
+    <Description>AsyncNet.Tcp is part of AsyncNet asynchronous networking library. AsyncNet.Tcp is specially designed for TCP networks</Description>
     <Authors>bartlomiej.stys</Authors>
     <Copyright>© 2018 Bartłomiej Styś</Copyright>
     <Owners>bartlomiej.stys</Owners>
     <PackageTags>asyncnet.tcp async network networking tcp tcpserver</PackageTags>
     <VersionPrefix>1.0.0</VersionPrefix>
-    <VersionSuffix>alpha05</VersionSuffix>
-    <PackageReleaseNotes>MixedDefragmenter fixes</PackageReleaseNotes>
+    <VersionSuffix>alpha06</VersionSuffix>
+    <PackageReleaseNotes>Defragmentation breaking changes</PackageReleaseNotes>
     <PackageLicenseUrl>https://github.com/bartlomiej-stys/AsyncNet/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/bartlomiej-stys/AsyncNet</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

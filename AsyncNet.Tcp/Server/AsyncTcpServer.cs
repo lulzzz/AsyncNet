@@ -224,7 +224,7 @@ namespace AsyncNet.Tcp.Server
                     using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, cancellationToken))
                     {
                         readFrameResult = await this.config.ProtocolFrameDefragmenter
-                            .ReadFrameAsync(remoteTcpPeer.TcpStream, readFrameResult?.LeftOvers, linkedCts.Token)
+                            .ReadFrameAsync(remoteTcpPeer, readFrameResult?.LeftOvers, linkedCts.Token)
                             .ConfigureAwait(false);
                     }
                 }

@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
 namespace AsyncNet.Tcp.Defragmentation
@@ -12,12 +11,12 @@ namespace AsyncNet.Tcp.Defragmentation
         /// <summary>
         /// Reads one frame from the stream
         /// </summary>
-        /// <param name="stream">Network stream</param>
+        /// <param name="remoteTcpPeer">Remote peer</param>
         /// <param name="leftOvers">Any left overs from previous call or null</param>
         /// <param name="cancellationToken"></param>
         /// <returns>Frame result</returns>
         Task<ReadFrameResult> ReadFrameAsync(
-            Stream stream,
+            RemoteTcpPeer remoteTcpPeer,
             byte[] leftOvers,
             CancellationToken cancellationToken);
     }
