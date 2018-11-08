@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using AsyncNet.Core;
@@ -9,20 +8,21 @@ namespace AsyncNet.Tcp.Defragmentation
     public class LengthPrefixedDefragmenter : IProtocolFrameDefragmenter
     {
         private readonly ILengthPrefixedDefragmentationStrategy strategy;
-        private readonly byte[] readBuffer;
+        private readonly int frameHeaderLength;
 
         public LengthPrefixedDefragmenter(ILengthPrefixedDefragmentationStrategy strategy)
         {
             this.strategy = strategy;
-            this.readBuffer = new byte[strategy.FrameHeaderLength];
+            this.frameHeaderLength = strategy.FrameHeaderLength;
         }
 
         public async Task<ReadFrameResult> ReadFrameAsync(RemoteTcpPeer remoteTcpPeer, byte[] leftOvers, CancellationToken cancellationToken)
         {
             bool open;
             int frameLength;
+            var readBuffer = new byte[this.frameHeaderLength];
 
-            open = await remoteTcpPeer.TcpStream.ReadUntilBufferIsFullAsync(this.readBuffer, 0, this.readBuffer.Length, cancellationToken)
+            open = await remoteTcpPeer.TcpStream.ReadUntilBufferIsFullAsync(readBuffer, 0, readBuffer.Length, cancellationToken)
                 .ConfigureAwait(false);
 
             if (!open)
@@ -32,7 +32,7 @@ namespace AsyncNet.Tcp.Defragmentation
 
             try
             {
-                frameLength = this.strategy.GetFrameLength(this.readBuffer);
+                frameLength = this.strategy.GetFrameLength(readBuffer);
             }
             catch (Exception ex)
             {
@@ -45,9 +45,9 @@ namespace AsyncNet.Tcp.Defragmentation
             }
 
             var frameBuffer = new byte[frameLength];
-            Array.Copy(this.readBuffer, 0, frameBuffer, 0, this.readBuffer.Length);
+            Array.Copy(readBuffer, 0, frameBuffer, 0, readBuffer.Length);
 
-            open = await remoteTcpPeer.TcpStream.ReadUntilBufferIsFullAsync(frameBuffer, this.readBuffer.Length, frameLength - this.readBuffer.Length, cancellationToken)
+            open = await remoteTcpPeer.TcpStream.ReadUntilBufferIsFullAsync(frameBuffer, readBuffer.Length, frameLength - readBuffer.Length, cancellationToken)
                 .ConfigureAwait(false);
 
             if (!open)

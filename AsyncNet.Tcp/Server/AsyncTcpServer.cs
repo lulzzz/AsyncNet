@@ -314,7 +314,7 @@ namespace AsyncNet.Tcp.Server
             try
             {
                 await Task.WhenAll(
-                    Task.Run(() => remoteTcpPeer.OnFrameArrived(e)), 
+                    Task.Run(() => remoteTcpPeer.OnFrameArrived(e)),
                     Task.Run(() => this.FrameArrived?.Invoke(this, e)))
                     .ConfigureAwait(false);
             }

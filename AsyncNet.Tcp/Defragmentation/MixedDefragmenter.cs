@@ -125,7 +125,7 @@ namespace AsyncNet.Tcp.Defragmentation
                     frameBuffer = new byte[dataLength];
                     Array.Copy(leftOvers, 0, frameBuffer, 0, dataLength);
                 }
-                
+
                 leftOvers = null;
             }
 
