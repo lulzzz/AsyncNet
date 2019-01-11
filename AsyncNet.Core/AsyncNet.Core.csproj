@@ -10,7 +10,7 @@
     <VersionPrefix>1.0.0</VersionPrefix>
     <VersionSuffix>alpha13</VersionSuffix>
     <PackageReleaseNotes>Breaking API changes</PackageReleaseNotes>
-    <PackageLicense>https://github.com/bartlomiej-stys/AsyncNet/blob/master/LICENSE</PackageLicense>
+    <PackageLicenseUrl>https://github.com/bartlomiej-stys/AsyncNet/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/bartlomiej-stys/AsyncNet</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
