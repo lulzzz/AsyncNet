@@ -1,6 +1,6 @@
 ﻿namespace AsyncNet.Core
 {
-    public struct IOBuffer
+    public class IOBuffer
     {
         public IOBuffer(byte[] buffer, int offset, int count)
         {
@@ -9,10 +9,10 @@
             this.Count = count;
         }
 
-        public readonly byte[] Buffer;
+        public byte[] Buffer { get; }
 
-        public readonly int Offset;
+        public int Offset { get; }
 
-        public readonly int Count;
+        public int Count { get; }
     }
 }

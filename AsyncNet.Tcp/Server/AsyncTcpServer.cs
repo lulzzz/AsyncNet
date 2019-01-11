@@ -26,7 +26,7 @@ namespace AsyncNet.Tcp.Server
         {
             this.config = new AsyncTcpServerConfig()
             {
-                ProtocolFrameDefragmenter = config.ProtocolFrameDefragmenter,
+                ProtocolFrameDefragmenterFactory = config.ProtocolFrameDefragmenterFactory,
                 ConnectionTimeout = config.ConnectionTimeout,
                 MaxSendQueuePerPeerSize = config.MaxSendQueuePerPeerSize,
                 IPAddress = config.IPAddress,
@@ -151,6 +151,7 @@ namespace AsyncNet.Tcp.Server
                             .ConfigureAwait(false);
 
                         remoteTcpPeer = new RemoteTcpPeer(
+                            this.config.ProtocolFrameDefragmenterFactory(tcpClient),
                             sslStream,
                             tcpClient.Client.RemoteEndPoint as IPEndPoint,
                             sendQueue,
@@ -159,6 +160,7 @@ namespace AsyncNet.Tcp.Server
                     else
                     {
                         remoteTcpPeer = new RemoteTcpPeer(
+                            this.config.ProtocolFrameDefragmenterFactory(tcpClient),
                             tcpClient.GetStream(),
                             tcpClient.Client.RemoteEndPoint as IPEndPoint,
                             sendQueue,
@@ -225,7 +227,7 @@ namespace AsyncNet.Tcp.Server
                     using (var timeoutCts = this.config.ConnectionTimeout == TimeSpan.Zero ? new CancellationTokenSource() : new CancellationTokenSource(this.config.ConnectionTimeout))
                     using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, cancellationToken))
                     {
-                        readFrameResult = await this.config.ProtocolFrameDefragmenter
+                        readFrameResult = await remoteTcpPeer.ProtocolFrameDefragmenter
                             .ReadFrameAsync(remoteTcpPeer, readFrameResult?.LeftOvers, linkedCts.Token)
                             .ConfigureAwait(false);
                     }

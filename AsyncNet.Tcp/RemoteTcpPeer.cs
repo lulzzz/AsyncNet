@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using AsyncNet.Core;
+using AsyncNet.Tcp.Defragmentation;
 
 namespace AsyncNet.Tcp
 {
@@ -15,11 +16,13 @@ namespace AsyncNet.Tcp
         private ConnectionCloseReason connectionCloseReason;
 
         public RemoteTcpPeer(
+            IProtocolFrameDefragmenter protocolFrameDefragmenter,
             Stream tcpStream,
             IPEndPoint ipEndPoint,
-            ActionBlock<RemoteTcpPeerOutgoingMessage> sendQueue, 
+            ActionBlock<RemoteTcpPeerOutgoingMessage> sendQueue,
             CancellationTokenSource cts)
         {
+            this.ProtocolFrameDefragmenter = protocolFrameDefragmenter;
             this.TcpStream = tcpStream;
             this.IPEndPoint = ipEndPoint;
             this.SendQueue = sendQueue;
@@ -29,6 +32,8 @@ namespace AsyncNet.Tcp
         public event EventHandler<FrameArrivedEventArgs> FrameArrived;
 
         public event EventHandler<ConnectionClosedEventArgs> ConnectionClosed;
+
+        public IProtocolFrameDefragmenter ProtocolFrameDefragmenter { get; }
 
         public Stream TcpStream { get; }
 
@@ -83,8 +88,8 @@ namespace AsyncNet.Tcp
                     result = await this.SendQueue.SendAsync(
                         new RemoteTcpPeerOutgoingMessage(
                             this, 
-                            this.CancellationTokenSource.Token, 
-                            new IOBuffer(data, offset, count)), 
+                            this.CancellationTokenSource.Token,
+                            new IOBuffer(data, offset, count)),
                         linkedCts.Token).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException)

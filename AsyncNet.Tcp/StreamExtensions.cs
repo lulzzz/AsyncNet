@@ -13,7 +13,7 @@ namespace AsyncNet.Tcp
             using (cancellationToken.Register(() =>
             {
                 taskCompletionSource.TrySetCanceled();
-            }, 
+            },
             false))
             {
                 var task = stream.ReadAsync(buffer, offset, count);

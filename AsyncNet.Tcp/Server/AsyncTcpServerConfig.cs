@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using AsyncNet.Tcp.Defragmentation;
 
@@ -7,7 +8,7 @@ namespace AsyncNet.Tcp.Server
 {
     public class AsyncTcpServerConfig
     {
-        public IProtocolFrameDefragmenter ProtocolFrameDefragmenter { get; set; } = new MixedDefragmenter(new DefaultProtocolFrameDefragmentationStrategy());
+        public Func<TcpClient, IProtocolFrameDefragmenter> ProtocolFrameDefragmenterFactory { get; set; } = (_) => new MixedDefragmenter(new DefaultProtocolFrameDefragmentationStrategy());
 
         public TimeSpan ConnectionTimeout { get; set; } = TimeSpan.Zero;
 
