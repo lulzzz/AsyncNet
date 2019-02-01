@@ -4,11 +4,10 @@ Asynchronous network library for .NET
 The primary purpose of this library is to provide easy to use interface for TCP and UDP networking in C#
 ## Getting started
 This repository contains multiple projects that fall into different category. See below.
-## TCP
-### AsyncNet.Tcp
-#### Installation
+## AsyncNet.Tcp
+### Installation
 [NuGet](https://www.nuget.org/packages/AsyncNet.Tcp/)
-#### Features:
+### Features:
 * Easy to use TCP server
 * Easy to use TCP client
 * SSL support
@@ -47,11 +46,10 @@ client.FrameArrived += (s, e) => Console.WriteLine($"Client received: " +
     $"{System.Text.Encoding.UTF8.GetString(e.TcpFrameArrivedData.FrameData)}");
 await client.StartAsync(CancellationToken.None);
 ```
-## UDP
-### AsyncNet.Udp
-#### Installation
+## AsyncNet.Udp
+### Installation
 [NuGet](https://www.nuget.org/packages/AsyncNet.Udp/)
-#### Features:
+### Features:
 * Easy to use UDP server
 * Easy to use UDP client
 ### Basic Usage
