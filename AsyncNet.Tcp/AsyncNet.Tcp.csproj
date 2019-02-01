@@ -2,15 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Description>AsyncNet.Tcp is part of AsyncNet asynchronous networking library. AsyncNet.Tcp is specially designed for TCP networks</Description>
+    <Description>AsyncNet.Tcp is part of AsyncNet asynchronous networking library. AsyncNet.Tcp is specially designed for dealing with TCP networks</Description>
     <Authors>bartlomiej.stys</Authors>
     <Copyright>© 2019 Bartłomiej Styś</Copyright>
     <Owners>bartlomiej.stys</Owners>
-    <PackageTags>asyncnet.tcp async network networking tcp tcpserver</PackageTags>
+    <PackageTags>asyncnet.tcp async network networking tcp tcpserver tcpclient</PackageTags>
     <VersionPrefix>1.0.0</VersionPrefix>
-    <VersionSuffix>alpha13</VersionSuffix>
-    <PackageReleaseNotes>Breaking API changes</PackageReleaseNotes>
-    <PackageLicenseUrl>https://github.com/bartlomiej-stys/AsyncNet/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageReleaseNotes>First release</PackageReleaseNotes>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/bartlomiej-stys/AsyncNet</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>7.3</LangVersion>
@@ -23,6 +22,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AsyncNet.Core\AsyncNet.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>

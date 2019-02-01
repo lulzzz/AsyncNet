@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using AsyncNet.Core;
+using AsyncNet.Core.Exceptions;
+using AsyncNet.Core.Extensions;
+using AsyncNet.Tcp.Remote;
 
 namespace AsyncNet.Tcp.Defragmentation
 {

@@ -1,10 +1,11 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using AsyncNet.Tcp.Remote;
 
 namespace AsyncNet.Tcp.Defragmentation
 {
     /// <summary>
-    /// Frame defragmenter. You can implement this interface to support any defragmentation / deframing
+    /// Frame defragmenter. You can implement this interface to support any defragmentation / deframing mechanism
     /// </summary>
     public interface IProtocolFrameDefragmenter
     {
