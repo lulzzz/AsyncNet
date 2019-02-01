@@ -14,7 +14,7 @@ This repository contains multiple projects that fall into different category. Se
 * SSL support
 ### Basic Usage
 #### TCP Server
-```
+```csharp
 var server = new AsyncNetTcpServer(7788);
 server.ServerStarted += (s, e) => Console.WriteLine($"Server started on port: " +
     $"{e.TcpServerStartedData.ServerPort}");
@@ -32,7 +32,7 @@ server.FrameArrived += (s, e) => Console.WriteLine($"Server received: " +
 await server.StartAsync(CancellationToken.None);
 ```
 #### TCP Client
-```
+```csharp
 var client = new AsyncNetTcpClient("127.0.0.1", 7788);
 client.ConnectionEstablished += (s, e) =>
 {
@@ -56,7 +56,7 @@ await client.StartAsync(CancellationToken.None);
 * Easy to use UDP client
 ### Basic Usage
 #### UDP Server
-```
+```csharp
 var server = new AsyncNetUdpServer(7788);
 server.ServerStarted += (s, e) => Console.WriteLine($"Server started on port: {e.UdpServerStartedData.ServerPort}");
 server.UdpPacketArrived += (s, e) =>
@@ -73,7 +73,7 @@ server.UdpPacketArrived += (s, e) =>
 await server.StartAsync(CancellationToken.None);
 ```
 #### UDP Client
-```
+```csharp
 var client = new AsyncNetUdpClient("127.0.0.1", 7788);
 client.ClientReady += (s, e) =>
 {
