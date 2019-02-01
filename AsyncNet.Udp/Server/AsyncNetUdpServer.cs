@@ -17,6 +17,13 @@ namespace AsyncNet.Udp.Server
 {
     public class AsyncNetUdpServer : IAsyncNetUdpServer
     {
+        public AsyncNetUdpServer(int port) : this(new AsyncNetUdpServerConfig()
+        {
+            Port = port
+        })
+        {
+        }
+
         public AsyncNetUdpServer(AsyncNetUdpServerConfig config)
         {
             this.Config = new AsyncNetUdpServerConfig()
