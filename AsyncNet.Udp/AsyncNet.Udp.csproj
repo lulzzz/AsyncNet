@@ -7,8 +7,8 @@
     <Copyright>© 2019 Bartłomiej Styś</Copyright>
     <Owners>bartlomiej.stys</Owners>
     <PackageTags>asyncnet.udp async network networking udp udpserver udpclient</PackageTags>
-    <VersionPrefix>1.0.1</VersionPrefix>
-    <PackageReleaseNotes>Minor improvements</PackageReleaseNotes>
+    <VersionPrefix>1.0.3</VersionPrefix>
+    <PackageReleaseNotes>Client updates</PackageReleaseNotes>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/bartlomiej-stys/AsyncNet</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

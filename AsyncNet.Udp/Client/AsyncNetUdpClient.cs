@@ -40,6 +40,8 @@ namespace AsyncNet.Udp.Client
 
         public event EventHandler<UdpClientStartedEventArgs> ClientStarted;
 
+        public event EventHandler<UdpClientReadyEventArgs> ClientReady;
+
         public event EventHandler<UdpClientStoppedEventArgs> ClientStopped;
 
         public event EventHandler<UdpClientErrorEventArgs> ClientErrorOccured;
@@ -52,6 +54,11 @@ namespace AsyncNet.Udp.Client
             Observable.FromEventPattern<UdpClientStartedEventArgs>(
                 h => this.ClientStarted += h, h => this.ClientStarted -= h)
             .Select(x => x.EventArgs.UdpClientStartedData);
+
+        public IObservable<UdpClientReadyData> WhenClientReady =>
+            Observable.FromEventPattern<UdpClientReadyEventArgs>(
+                h => this.ClientReady += h, h => this.ClientReady -= h)
+            .Select(x => x.EventArgs.UdpClientReadyData);
 
         public IObservable<UdpClientStoppedData> WhenClientStopped =>
             Observable.FromEventPattern<UdpClientStoppedEventArgs>(
@@ -107,6 +114,8 @@ namespace AsyncNet.Udp.Client
             this.SendQueueActionBlock = this.CreateSendQueueActionBlock(cancellationToken);
             this.CancellationToken = cancellationToken;
 
+            this.Config.ConfigureUdpClientCallback?.Invoke(this.UdpClient);
+
             this.OnClientStarted(new UdpClientStartedEventArgs(new UdpClientStartedData(this.Config.TargetHostname, this.Config.TargetPort)));
 
             IPAddress[] addresses;
@@ -145,7 +154,10 @@ namespace AsyncNet.Udp.Client
 
             try
             {
-                await this.ReceiveAsync(cancellationToken).ConfigureAwait(false);
+                await Task.WhenAll(
+                    this.ReceiveAsync(cancellationToken),
+                    Task.Run(() => this.OnClientReady(new UdpClientReadyEventArgs(new UdpClientReadyData(this, this.Config.TargetHostname, this.Config.TargetPort)))))
+                    .ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -284,6 +296,11 @@ namespace AsyncNet.Udp.Client
         protected virtual void OnClientStarted(UdpClientStartedEventArgs e)
         {
             this.ClientStarted?.Invoke(this, e);
+        }
+
+        protected virtual void OnClientReady(UdpClientReadyEventArgs e)
+        {
+            this.ClientReady?.Invoke(this, e);
         }
 
         protected virtual void OnClientStopped(UdpClientStoppedEventArgs e)

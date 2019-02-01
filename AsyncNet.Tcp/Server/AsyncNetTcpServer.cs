@@ -140,11 +140,12 @@ namespace AsyncNet.Tcp.Server
                 return;
             }
 
-            this.OnServerStarted(new TcpServerStartedEventArgs(new TcpServerStartedData(this.Config.IPAddress, this.Config.Port)));
-
             try
             {
-                await this.ListenAsync(tcpListener, cancellationToken).ConfigureAwait(false);
+                await Task.WhenAll(
+                    this.ListenAsync(tcpListener, cancellationToken),
+                    Task.Run(() => this.OnServerStarted(new TcpServerStartedEventArgs(new TcpServerStartedData(this.Config.IPAddress, this.Config.Port)))))
+                    .ConfigureAwait(false);
             }
             catch (Exception ex)
             {

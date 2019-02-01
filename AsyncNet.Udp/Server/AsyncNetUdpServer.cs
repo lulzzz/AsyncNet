@@ -112,11 +112,12 @@ namespace AsyncNet.Udp.Server
             this.SendQueueActionBlock = this.CreateSendQueueActionBlock(cancellationToken);
             this.CancellationToken = cancellationToken;
 
-            this.OnServerStarted(new UdpServerStartedEventArgs(new UdpServerStartedData(this.Config.IPAddress, this.Config.Port)));
-
             try
             {
-                await this.ReceiveAsync(cancellationToken).ConfigureAwait(false);
+                await Task.WhenAll(
+                    this.ReceiveAsync(cancellationToken),
+                    Task.Run(() => this.OnServerStarted(new UdpServerStartedEventArgs(new UdpServerStartedData(this.Config.IPAddress, this.Config.Port)))))
+                    .ConfigureAwait(false);
             }
             catch (Exception ex)
             {
