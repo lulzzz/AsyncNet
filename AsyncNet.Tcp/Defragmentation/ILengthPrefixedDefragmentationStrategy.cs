@@ -6,7 +6,7 @@
     public interface ILengthPrefixedDefragmentationStrategy
     {
         /// <summary>
-        /// Minimum number of bytes to read from stream so <see cref="GetEntireFrameLength(byte[])"/> wiil be able to determine frame length
+        /// Minimum number of bytes to read from stream so <see cref="GetFrameLength(byte[])"/> wiil be able to determine frame length
         /// </summary>
         int FrameHeaderLength { get; }
 

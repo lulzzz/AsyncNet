@@ -7,19 +7,33 @@ using AsyncNet.Tcp.Remote;
 
 namespace AsyncNet.Tcp.Defragmentation
 {
+    /// <summary>
+    /// Mixed protocol frame defragmenter
+    /// </summary>
     public class MixedDefragmenter : IProtocolFrameDefragmenter
     {
         private static readonly byte[] emptyArray = new byte[0];
         private readonly IMixedDefragmentationStrategy strategy;
         private readonly int readBufferLength;
 
+        /// <summary>
+        /// Constructs mixed frame defragmenter that is using <paramref name="strategy"/> for defragmentation strategy
+        /// </summary>
+        /// <param name="strategy"></param>
         public MixedDefragmenter(IMixedDefragmentationStrategy strategy)
         {
             this.strategy = strategy;
             this.readBufferLength = strategy.ReadBufferLength;
         }
 
-        public async Task<ReadFrameResult> ReadFrameAsync(RemoteTcpPeer remoteTcpPeer, byte[] leftOvers, CancellationToken cancellationToken)
+        /// <summary>
+        /// Reads one frame from the stream
+        /// </summary>
+        /// <param name="remoteTcpPeer">Remote peer</param>
+        /// <param name="leftOvers">Any left overs from previous call or null</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>Frame result</returns>
+        public virtual async Task<ReadFrameResult> ReadFrameAsync(IRemoteTcpPeer remoteTcpPeer, byte[] leftOvers, CancellationToken cancellationToken)
         {
             byte[] frameBuffer;
             int readLength;

@@ -23,8 +23,15 @@ using AsyncNet.Core.Error;
 
 namespace AsyncNet.Tcp.Server
 {
+    /// <summary>
+    /// An implementation of asynchronous TCP server
+    /// </summary>
     public class AsyncNetTcpServer : IAsyncNetTcpServer
     {
+        /// <summary>
+        /// Constructs TCP server that runs on particular port and has default configuration
+        /// </summary>
+        /// <param name="port">A port that TCP server will run on</param>
         public AsyncNetTcpServer(int port) : this(new AsyncNetTcpServerConfig()
             {
                 Port = port
@@ -32,6 +39,10 @@ namespace AsyncNet.Tcp.Server
         {
         }
 
+        /// <summary>
+        /// Constructs TCP server with custom configuration
+        /// </summary>
+        /// <param name="config">TCP server configuration</param>
         public AsyncNetTcpServer(AsyncNetTcpServerConfig config)
         {
             this.Config = new AsyncNetTcpServerConfig()
@@ -52,75 +63,130 @@ namespace AsyncNet.Tcp.Server
             };
         }
 
+        /// <summary>
+        /// Fires when server started running
+        /// </summary>
         public event EventHandler<TcpServerStartedEventArgs> ServerStarted;
 
+        /// <summary>
+        /// Fires when server stopped running 
+        /// </summary>
         public event EventHandler<TcpServerStoppedEventArgs> ServerStopped;
 
+        /// <summary>
+        /// Fires when TCP frame arrived from particular client/peer
+        /// </summary>
         public event EventHandler<TcpFrameArrivedEventArgs> FrameArrived;
 
+        /// <summary>
+        /// Fires when there was a problem with the server
+        /// </summary>
         public event EventHandler<TcpServerErrorEventArgs> ServerErrorOccured;
 
+        /// <summary>
+        /// Fires when there was an error while handling particular client/peer
+        /// </summary>
         public event EventHandler<RemoteTcpPeerErrorEventArgs> RemoteTcpPeerErrorOccured;
 
+        /// <summary>
+        /// Fires when unhandled error occured - e.g. when event subscriber throws an exception
+        /// </summary>
         public event EventHandler<UnhandledErrorEventArgs> UnhandledErrorOccured;
 
+        /// <summary>
+        /// Fires when new client/peer connects to the server
+        /// </summary>
         public event EventHandler<ConnectionEstablishedEventArgs> ConnectionEstablished;
 
+        /// <summary>
+        /// Fires when connection closes for particular client/peer
+        /// </summary>
         public event EventHandler<ConnectionClosedEventArgs> ConnectionClosed;
 
+        /// <summary>
+        /// Produces an element when server started running
+        /// </summary>
         public IObservable<TcpServerStartedData> WhenServerStarted => Observable.FromEventPattern<TcpServerStartedEventArgs>(
                 h => this.ServerStarted += h,
                 h => this.ServerStarted -= h)
             .Select(x => x.EventArgs.TcpServerStartedData);
 
+        /// <summary>
+        /// Produces an element when server stopped running 
+        /// </summary>
         public IObservable<TcpServerStoppedData> WhenServerStopped => Observable.FromEventPattern<TcpServerStoppedEventArgs>(
                 h => this.ServerStopped += h,
                 h => this.ServerStopped -= h)
             .Select(x => x.EventArgs.TcpServerStoppedData);
 
+        /// <summary>
+        /// Produces an element when TCP frame arrived from particular client/peer
+        /// </summary>
         public IObservable<TcpFrameArrivedData> WhenFrameArrived => Observable.FromEventPattern<TcpFrameArrivedEventArgs>(
                 h => this.FrameArrived += h,
                 h => this.FrameArrived -= h)
             .TakeUntil(this.WhenServerStopped)
             .Select(x => x.EventArgs.TcpFrameArrivedData);
 
+        /// <summary>
+        /// Produces an element when there was a problem with the server
+        /// </summary>
         public IObservable<ErrorData> WhenServerErrorOccured => Observable.FromEventPattern<TcpServerErrorEventArgs>(
                 h => this.ServerErrorOccured += h,
                 h => this.ServerErrorOccured -= h)
             .TakeUntil(this.WhenServerStopped)
             .Select(x => x.EventArgs.ErrorData);
 
+        /// <summary>
+        /// Produces an element when there was an error while handling particular client/peer
+        /// </summary>
         public IObservable<RemoteTcpPeerErrorData> WhenRemoteTcpPeerErrorOccured => Observable.FromEventPattern<RemoteTcpPeerErrorEventArgs>(
                 h => this.RemoteTcpPeerErrorOccured += h,
                 h => this.RemoteTcpPeerErrorOccured -= h)
             .TakeUntil(this.WhenServerStopped)
             .Select(x => x.EventArgs.ErrorData);
 
+        /// <summary>
+        /// Produces an element when unhandled error occured - e.g. when event subscriber throws an exception
+        /// </summary>
         public IObservable<ErrorData> WhenUnhandledErrorOccured => Observable.FromEventPattern<UnhandledErrorEventArgs>(
                 h => this.UnhandledErrorOccured += h,
                 h => this.UnhandledErrorOccured -= h)
             .TakeUntil(this.WhenServerStopped)
             .Select(x => x.EventArgs.ErrorData);
 
+        /// <summary>
+        /// Produces an element when new client/peer connects to the server
+        /// </summary>
         public IObservable<ConnectionEstablishedData> WhenConnectionEstablished => Observable.FromEventPattern<ConnectionEstablishedEventArgs>(
                 h => this.ConnectionEstablished += h,
                 h => this.ConnectionEstablished -= h)
             .TakeUntil(this.WhenServerStopped)
             .Select(x => x.EventArgs.ConnectionEstablishedData);
 
+        /// <summary>
+        /// Produces an element when connection closes for particular client/peer
+        /// </summary>
         public IObservable<ConnectionClosedData> WhenConnectionClosed => Observable.FromEventPattern<ConnectionClosedEventArgs>(
                 h => this.ConnectionClosed += h,
                 h => this.ConnectionClosed -= h)
             .TakeUntil(this.WhenServerStopped)
             .Select(x => x.EventArgs.ConnectionClosedData);
 
-        protected virtual AsyncNetTcpServerConfig Config { get; set; }
-
+        /// <summary>
+        /// Asynchronously starts the server that will run indefinitely
+        /// </summary>
+        /// <returns><see cref="Task" /></returns>
         public virtual Task StartAsync()
         {
             return this.StartAsync(CancellationToken.None);
         }
 
+        /// <summary>
+        /// Asynchronously starts the server that will run until <paramref name="cancellationToken" /> is cancelled
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns><see cref="Task" /></returns>
         public virtual async Task StartAsync(CancellationToken cancellationToken)
         {
             var tcpListener = this.CreateTcpListener();
@@ -169,6 +235,8 @@ namespace AsyncNet.Tcp.Server
                 this.OnServerStopped(new TcpServerStoppedEventArgs(new TcpServerStoppedData(this.Config.IPAddress, this.Config.Port)));
             }
         }
+
+        protected virtual AsyncNetTcpServerConfig Config { get; set; }
 
         protected virtual TcpListener CreateTcpListener()
         {

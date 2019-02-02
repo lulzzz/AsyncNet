@@ -2,9 +2,9 @@
 {
     public class DefaultProtocolFrameDefragmentationStrategy : IMixedDefragmentationStrategy
     {
-        public int ReadBufferLength => 4096;
+        public virtual int ReadBufferLength { get; protected set; } = 4096;
 
-        public int GetFrameLength(byte[] buffer, int dataLength)
+        public virtual int GetFrameLength(byte[] buffer, int dataLength)
         {
             return dataLength;
         }

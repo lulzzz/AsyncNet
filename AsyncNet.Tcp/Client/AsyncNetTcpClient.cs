@@ -25,8 +25,16 @@ using AsyncNet.Tcp.Remote.SystemEvent;
 
 namespace AsyncNet.Tcp.Client
 {
+    /// <summary>
+    /// An implementation of asynchronous TCP client
+    /// </summary>
     public class AsyncNetTcpClient : IAsyncNetTcpClient
     {
+        /// <summary>
+        /// Constructs TCP client that connects to the particular server and has default configuration
+        /// </summary>
+        /// <param name="targetHostname">Server hostname</param>
+        /// <param name="targetPort">Server port</param>
         public AsyncNetTcpClient(string targetHostname, int targetPort) : this (new AsyncTcpClientConfig()
         {
             TargetHostname = targetHostname,
@@ -35,6 +43,10 @@ namespace AsyncNet.Tcp.Client
         {
         }
 
+        /// <summary>
+        /// Constructs TCP client with custom configuration
+        /// </summary>
+        /// <param name="config">TCP client configuration</param>
         public AsyncNetTcpClient(AsyncTcpClientConfig config)
         {
             this.Config = new AsyncTcpClientConfig()
@@ -56,67 +68,130 @@ namespace AsyncNet.Tcp.Client
             };
         }
 
+        /// <summary>
+        /// Fires when client started running, but it's not connected yet to the server
+        /// </summary>
         public event EventHandler<TcpClientStartedEventArgs> ClientStarted;
 
+        /// <summary>
+        /// Fires when client stopped running
+        /// </summary>
         public event EventHandler<TcpClientStoppedEventArgs> ClientStopped;
 
+        /// <summary>
+        /// Fires when there was a problem with the client
+        /// </summary>
         public event EventHandler<TcpClientErrorEventArgs> ClientErrorOccured;
 
+        /// <summary>
+        /// Fires when there was a problem while handling communication with the server
+        /// </summary>
         public event EventHandler<RemoteTcpPeerErrorEventArgs> RemoteTcpPeerErrorOccured;
 
+        /// <summary>
+        /// Fires when unhandled error occured - e.g. when event subscriber throws an exception
+        /// </summary>
         public event EventHandler<UnhandledErrorEventArgs> UnhandledErrorOccured;
 
+        /// <summary>
+        /// Fires when connection with the server is established
+        /// </summary>
         public event EventHandler<ConnectionEstablishedEventArgs> ConnectionEstablished;
 
+        /// <summary>
+        /// Fires when TCP frame arrived from the server
+        /// </summary>
         public event EventHandler<TcpFrameArrivedEventArgs> FrameArrived;
 
+        /// <summary>
+        /// Fires when connection with the server closes
+        /// </summary>
         public event EventHandler<ConnectionClosedEventArgs> ConnectionClosed;
 
+        /// <summary>
+        /// Produces an element when client started running, but it's not connected yet to the server
+        /// </summary>
         public IObservable<TcpClientStartedData> WhenClientStarted =>
             Observable.FromEventPattern<TcpClientStartedEventArgs>(
                 h => this.ClientStarted += h, h => this.ClientStarted -= h)
             .Select(x => x.EventArgs.TcpClientStartedData);
 
+        /// <summary>
+        /// Produces an element when client stopped running
+        /// </summary>
         public IObservable<TcpClientStoppedData> WhenClientStopped =>
             Observable.FromEventPattern<TcpClientStoppedEventArgs>(
                 h => this.ClientStopped += h, h => this.ClientStopped -= h)
             .Select(x => x.EventArgs.TcpClientStoppedData);
 
+        /// <summary>
+        /// Produces an element when there was a problem with the client
+        /// </summary>
         public IObservable<ErrorData> WhenClientErrorOccured =>
             Observable.FromEventPattern<TcpClientErrorEventArgs>(
                 h => this.ClientErrorOccured += h, h => this.ClientErrorOccured -= h)
             .TakeUntil(this.WhenClientStopped)
             .Select(x => x.EventArgs.ErrorData);
 
+        /// <summary>
+        /// Produces an element when there was a problem while handling communication with the server
+        /// </summary>
         public IObservable<RemoteTcpPeerErrorData> WhenRemoteTcpPeerErrorOccured => Observable.FromEventPattern<RemoteTcpPeerErrorEventArgs>(
                 h => this.RemoteTcpPeerErrorOccured += h,
                 h => this.RemoteTcpPeerErrorOccured -= h)
             .TakeUntil(this.WhenClientStopped)
             .Select(x => x.EventArgs.ErrorData);
 
+        /// <summary>
+        /// Produces an element when unhandled error occured - e.g. when event subscriber throws an exception
+        /// </summary>
         public IObservable<ErrorData> WhenUnhandledErrorOccured => Observable.FromEventPattern<UnhandledErrorEventArgs>(
                 h => this.UnhandledErrorOccured += h,
                 h => this.UnhandledErrorOccured -= h)
             .TakeUntil(this.WhenClientStopped)
             .Select(x => x.EventArgs.ErrorData);
 
+        /// <summary>
+        /// Produces an element when connection with the server is established
+        /// </summary>
         public IObservable<ConnectionEstablishedData> WhenConnectionEstablished =>
             Observable.FromEventPattern<ConnectionEstablishedEventArgs>(
                 h => this.ConnectionEstablished += h, h => this.ConnectionEstablished -= h)
+            .TakeUntil(this.WhenClientStopped)
             .Select(x => x.EventArgs.ConnectionEstablishedData);
 
+        /// <summary>
+        /// Fires when TCP frame arrived from the server
+        /// </summary>
+        public IObservable<TcpFrameArrivedData> WhenFrameArrived =>
+            Observable.FromEventPattern<TcpFrameArrivedEventArgs>(
+                h => this.FrameArrived += h, h => this.FrameArrived -= h)
+            .TakeUntil(this.WhenClientStopped)
+            .Select(x => x.EventArgs.TcpFrameArrivedData);
+
+        /// <summary>
+        /// Produces an element when connection with the server closes
+        /// </summary>
         public IObservable<ConnectionClosedData> WhenConnectionClosed =>
             Observable.FromEventPattern<ConnectionClosedEventArgs>(
                 h => this.ConnectionClosed += h, h => this.ConnectionClosed -= h)
+            .TakeUntil(this.WhenClientStopped)
             .Select(x => x.EventArgs.ConnectionClosedData);
 
-        protected virtual AsyncTcpClientConfig Config { get; set; }
-
+        /// <summary>
+        /// Asynchronously starts the client that run until connection with the server is closed
+        /// </summary>
+        /// <returns><see cref="Task" /></returns>
         public virtual Task StartAsync()
         {
             return this.StartAsync(CancellationToken.None);
         }
 
+        /// <summary>
+        /// Asynchronously starts the client that run until connection with the server is closed or <paramref name="cancellationToken" /> is cancelled
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns><see cref="Task" /></returns>
         public virtual async Task StartAsync(CancellationToken cancellationToken)
         {
             IPAddress[] addresses;
@@ -174,6 +249,8 @@ namespace AsyncNet.Tcp.Client
                 this.OnClientStopped(new TcpClientStoppedEventArgs(new TcpClientStoppedData(this.Config.TargetHostname, this.Config.TargetPort)));
             }
         }
+
+        protected virtual AsyncTcpClientConfig Config { get; set; }
 
         protected virtual TcpClient CreateTcpClient()
         {

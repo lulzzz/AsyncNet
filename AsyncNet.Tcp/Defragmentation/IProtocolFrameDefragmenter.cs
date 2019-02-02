@@ -17,7 +17,7 @@ namespace AsyncNet.Tcp.Defragmentation
         /// <param name="cancellationToken"></param>
         /// <returns>Frame result</returns>
         Task<ReadFrameResult> ReadFrameAsync(
-            RemoteTcpPeer remoteTcpPeer,
+            IRemoteTcpPeer remoteTcpPeer,
             byte[] leftOvers,
             CancellationToken cancellationToken);
     }

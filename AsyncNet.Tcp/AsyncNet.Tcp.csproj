@@ -7,12 +7,13 @@
     <Copyright>© 2019 Bartłomiej Styś</Copyright>
     <Owners>bartlomiej.stys</Owners>
     <PackageTags>asyncnet.tcp async network networking tcp tcpserver tcpclient</PackageTags>
-    <VersionPrefix>1.0.1</VersionPrefix>
-    <PackageReleaseNotes>Minor improvements</PackageReleaseNotes>
+    <VersionPrefix>1.0.3</VersionPrefix>
+    <PackageReleaseNotes>Defragmentation improvements</PackageReleaseNotes>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/bartlomiej-stys/AsyncNet</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>7.3</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

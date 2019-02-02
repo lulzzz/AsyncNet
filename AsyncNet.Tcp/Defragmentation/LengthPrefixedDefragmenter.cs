@@ -7,18 +7,32 @@ using AsyncNet.Tcp.Remote;
 
 namespace AsyncNet.Tcp.Defragmentation
 {
+    /// <summary>
+    /// Length prefixed protocol frame defragmenter
+    /// </summary>
     public class LengthPrefixedDefragmenter : IProtocolFrameDefragmenter
     {
         private readonly ILengthPrefixedDefragmentationStrategy strategy;
         private readonly int frameHeaderLength;
 
+        /// <summary>
+        /// Constructs length prefixed defragmenter that is using <paramref name="strategy"/> for defragmentation strategy
+        /// </summary>
+        /// <param name="strategy"></param>
         public LengthPrefixedDefragmenter(ILengthPrefixedDefragmentationStrategy strategy)
         {
             this.strategy = strategy;
             this.frameHeaderLength = strategy.FrameHeaderLength;
         }
 
-        public async Task<ReadFrameResult> ReadFrameAsync(RemoteTcpPeer remoteTcpPeer, byte[] leftOvers, CancellationToken cancellationToken)
+        /// <summary>
+        /// Reads one frame from the stream
+        /// </summary>
+        /// <param name="remoteTcpPeer">Remote peer</param>
+        /// <param name="leftOvers">Any left overs from previous call or null</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>Frame result</returns>
+        public virtual async Task<ReadFrameResult> ReadFrameAsync(IRemoteTcpPeer remoteTcpPeer, byte[] leftOvers, CancellationToken cancellationToken)
         {
             bool open;
             int frameLength;

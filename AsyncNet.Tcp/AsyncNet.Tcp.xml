@@ -1,0 +1,728 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AsyncNet.Tcp</name>
+    </assembly>
+    <members>
+        <member name="T:AsyncNet.Tcp.Client.AsyncNetTcpClient">
+            <summary>
+            An implementation of asynchronous TCP client
+            </summary>
+        </member>
+        <member name="M:AsyncNet.Tcp.Client.AsyncNetTcpClient.#ctor(System.String,System.Int32)">
+            <summary>
+            Constructs TCP client that connects to the particular server and has default configuration
+            </summary>
+            <param name="targetHostname">Server hostname</param>
+            <param name="targetPort">Server port</param>
+        </member>
+        <member name="M:AsyncNet.Tcp.Client.AsyncNetTcpClient.#ctor(AsyncNet.Tcp.Client.AsyncTcpClientConfig)">
+            <summary>
+            Constructs TCP client with custom configuration
+            </summary>
+            <param name="config">TCP client configuration</param>
+        </member>
+        <member name="E:AsyncNet.Tcp.Client.AsyncNetTcpClient.ClientStarted">
+            <summary>
+            Fires when client started running, but it's not connected yet to the server
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Client.AsyncNetTcpClient.ClientStopped">
+            <summary>
+            Fires when client stopped running
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Client.AsyncNetTcpClient.ClientErrorOccured">
+            <summary>
+            Fires when there was a problem with the client
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Client.AsyncNetTcpClient.RemoteTcpPeerErrorOccured">
+            <summary>
+            Fires when there was a problem while handling communication with the server
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Client.AsyncNetTcpClient.UnhandledErrorOccured">
+            <summary>
+            Fires when unhandled error occured - e.g. when event subscriber throws an exception
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Client.AsyncNetTcpClient.ConnectionEstablished">
+            <summary>
+            Fires when connection with the server is established
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Client.AsyncNetTcpClient.FrameArrived">
+            <summary>
+            Fires when TCP frame arrived from the server
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Client.AsyncNetTcpClient.ConnectionClosed">
+            <summary>
+            Fires when connection with the server closes
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Client.AsyncNetTcpClient.WhenClientStarted">
+            <summary>
+            Produces an element when client started running, but it's not connected yet to the server
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Client.AsyncNetTcpClient.WhenClientStopped">
+            <summary>
+            Produces an element when client stopped running
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Client.AsyncNetTcpClient.WhenClientErrorOccured">
+            <summary>
+            Produces an element when there was a problem with the client
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Client.AsyncNetTcpClient.WhenRemoteTcpPeerErrorOccured">
+            <summary>
+            Produces an element when there was a problem while handling communication with the server
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Client.AsyncNetTcpClient.WhenUnhandledErrorOccured">
+            <summary>
+            Produces an element when unhandled error occured - e.g. when event subscriber throws an exception
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Client.AsyncNetTcpClient.WhenConnectionEstablished">
+            <summary>
+            Produces an element when connection with the server is established
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Client.AsyncNetTcpClient.WhenFrameArrived">
+            <summary>
+            Fires when TCP frame arrived from the server
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Client.AsyncNetTcpClient.WhenConnectionClosed">
+            <summary>
+            Produces an element when connection with the server closes
+            </summary>
+        </member>
+        <member name="M:AsyncNet.Tcp.Client.AsyncNetTcpClient.StartAsync">
+            <summary>
+            Asynchronously starts the client that run until connection with the server is closed
+            </summary>
+            <returns><see cref="T:System.Threading.Tasks.Task" /></returns>
+        </member>
+        <member name="M:AsyncNet.Tcp.Client.AsyncNetTcpClient.StartAsync(System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously starts the client that run until connection with the server is closed or <paramref name="cancellationToken" /> is cancelled
+            </summary>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns><see cref="T:System.Threading.Tasks.Task" /></returns>
+        </member>
+        <member name="T:AsyncNet.Tcp.Client.IAsyncNetTcpClient">
+            <summary>
+            An interface for asynchronous TCP client
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Client.IAsyncNetTcpClient.WhenClientErrorOccured">
+            <summary>
+            Produces an element when there was a problem with the client
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Client.IAsyncNetTcpClient.WhenClientStarted">
+            <summary>
+            Produces an element when client started running, but it's not connected yet to the server
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Client.IAsyncNetTcpClient.WhenClientStopped">
+            <summary>
+            Produces an element when client stopped running
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Client.IAsyncNetTcpClient.WhenConnectionClosed">
+            <summary>
+            Produces an element when connection with the server closes
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Client.IAsyncNetTcpClient.WhenConnectionEstablished">
+            <summary>
+            Produces an element when connection with the server is established
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Client.IAsyncNetTcpClient.WhenFrameArrived">
+            <summary>
+            Fires when TCP frame arrived from the server
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Client.IAsyncNetTcpClient.WhenRemoteTcpPeerErrorOccured">
+            <summary>
+            Produces an element when there was a problem while handling communication with the server
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Client.IAsyncNetTcpClient.WhenUnhandledErrorOccured">
+            <summary>
+            Produces an element when unhandled error occured - e.g. when event subscriber throws an exception
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Client.IAsyncNetTcpClient.ClientErrorOccured">
+            <summary>
+            Fires when there was a problem with the client
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Client.IAsyncNetTcpClient.ClientStarted">
+            <summary>
+            Fires when client started running, but it's not connected yet to the server
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Client.IAsyncNetTcpClient.ClientStopped">
+            <summary>
+            Fires when client stopped running
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Client.IAsyncNetTcpClient.ConnectionClosed">
+            <summary>
+            Fires when connection with the server closes
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Client.IAsyncNetTcpClient.ConnectionEstablished">
+            <summary>
+            Fires when connection with the server is established
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Client.IAsyncNetTcpClient.FrameArrived">
+            <summary>
+            Fires when TCP frame arrived from the server
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Client.IAsyncNetTcpClient.RemoteTcpPeerErrorOccured">
+            <summary>
+            Fires when there was a problem while handling communication with the server
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Client.IAsyncNetTcpClient.UnhandledErrorOccured">
+            <summary>
+            Fires when unhandled error occured - e.g. when event subscriber throws an exception
+            </summary>
+        </member>
+        <member name="M:AsyncNet.Tcp.Client.IAsyncNetTcpClient.StartAsync">
+            <summary>
+            Asynchronously starts the client that will run until connection with the server is closed
+            </summary>
+            <returns><see cref="T:System.Threading.Tasks.Task"/></returns>
+        </member>
+        <member name="M:AsyncNet.Tcp.Client.IAsyncNetTcpClient.StartAsync(System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously starts the client that will run until connection with the server is closed or <paramref name="cancellationToken"/> is cancelled
+            </summary>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns><see cref="T:System.Threading.Tasks.Task"/></returns>
+        </member>
+        <member name="T:AsyncNet.Tcp.Defragmentation.ILengthPrefixedDefragmentationStrategy">
+            <summary>
+            Implement this interface if you want to support your custom length-prefixed frame defragmentation strategy
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Defragmentation.ILengthPrefixedDefragmentationStrategy.FrameHeaderLength">
+            <summary>
+            Minimum number of bytes to read from stream so <see cref="!:GetEntireFrameLength(byte[])"/> wiil be able to determine frame length
+            </summary>
+        </member>
+        <member name="M:AsyncNet.Tcp.Defragmentation.ILengthPrefixedDefragmentationStrategy.GetFrameLength(System.Byte[])">
+            <summary>
+            Entire frame length including header(s)
+            </summary>
+            <param name="data"></param>
+            <returns>Entire frame length including header or 0 if frame should be dropped</returns>
+        </member>
+        <member name="T:AsyncNet.Tcp.Defragmentation.IMixedDefragmentationStrategy">
+            <summary>
+            Implement this interface if you want to support your custom frame defragmentation / deframing strategy
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Defragmentation.IMixedDefragmentationStrategy.ReadBufferLength">
+            <summary>
+            Default length of buffer for read operation
+            </summary>
+        </member>
+        <member name="M:AsyncNet.Tcp.Defragmentation.IMixedDefragmentationStrategy.GetFrameLength(System.Byte[],System.Int32)">
+            <summary>
+            Entire frame length including any delimiters / headers / prefixes / suffixes
+            </summary>
+            <param name="buffer"></param>
+            <param name="dataLength">Total data length in buffer</param>
+            <returns>Frame length or 0 if frame length could not be determined, -1 if frame should be dropped</returns>
+        </member>
+        <member name="T:AsyncNet.Tcp.Defragmentation.IProtocolFrameDefragmenter">
+            <summary>
+            Frame defragmenter. You can implement this interface to support any defragmentation / deframing mechanism
+            </summary>
+        </member>
+        <member name="M:AsyncNet.Tcp.Defragmentation.IProtocolFrameDefragmenter.ReadFrameAsync(AsyncNet.Tcp.Remote.IRemoteTcpPeer,System.Byte[],System.Threading.CancellationToken)">
+            <summary>
+            Reads one frame from the stream
+            </summary>
+            <param name="remoteTcpPeer">Remote peer</param>
+            <param name="leftOvers">Any left overs from previous call or null</param>
+            <param name="cancellationToken"></param>
+            <returns>Frame result</returns>
+        </member>
+        <member name="T:AsyncNet.Tcp.Defragmentation.LengthPrefixedDefragmenter">
+            <summary>
+            Length prefixed protocol frame defragmenter
+            </summary>
+        </member>
+        <member name="M:AsyncNet.Tcp.Defragmentation.LengthPrefixedDefragmenter.#ctor(AsyncNet.Tcp.Defragmentation.ILengthPrefixedDefragmentationStrategy)">
+            <summary>
+            Constructs length prefixed defragmenter that is using <paramref name="strategy"/> for defragmentation strategy
+            </summary>
+            <param name="strategy"></param>
+        </member>
+        <member name="M:AsyncNet.Tcp.Defragmentation.LengthPrefixedDefragmenter.ReadFrameAsync(AsyncNet.Tcp.Remote.IRemoteTcpPeer,System.Byte[],System.Threading.CancellationToken)">
+            <summary>
+            Reads one frame from the stream
+            </summary>
+            <param name="remoteTcpPeer">Remote peer</param>
+            <param name="leftOvers">Any left overs from previous call or null</param>
+            <param name="cancellationToken"></param>
+            <returns>Frame result</returns>
+        </member>
+        <member name="T:AsyncNet.Tcp.Defragmentation.MixedDefragmenter">
+            <summary>
+            Mixed protocol frame defragmenter
+            </summary>
+        </member>
+        <member name="M:AsyncNet.Tcp.Defragmentation.MixedDefragmenter.#ctor(AsyncNet.Tcp.Defragmentation.IMixedDefragmentationStrategy)">
+            <summary>
+            Constructs mixed frame defragmenter that is using <paramref name="strategy"/> for defragmentation strategy
+            </summary>
+            <param name="strategy"></param>
+        </member>
+        <member name="M:AsyncNet.Tcp.Defragmentation.MixedDefragmenter.ReadFrameAsync(AsyncNet.Tcp.Remote.IRemoteTcpPeer,System.Byte[],System.Threading.CancellationToken)">
+            <summary>
+            Reads one frame from the stream
+            </summary>
+            <param name="remoteTcpPeer">Remote peer</param>
+            <param name="leftOvers">Any left overs from previous call or null</param>
+            <param name="cancellationToken"></param>
+            <returns>Frame result</returns>
+        </member>
+        <member name="T:AsyncNet.Tcp.Remote.IRemoteTcpPeer">
+            <summary>
+            An interface for remote tcp client/peer
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Remote.IRemoteTcpPeer.ConnectionClosed">
+            <summary>
+            Fires when connection with this client/peer closes
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Remote.IRemoteTcpPeer.FrameArrived">
+            <summary>
+            Fires when TCP frame from this client/peer arrived
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Remote.IRemoteTcpPeer.WhenConnectionClosed">
+            <summary>
+            Produces an element when connection with this client/peer closes
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Remote.IRemoteTcpPeer.WhenFrameArrived">
+            <summary>
+            Produces an element when TCP frame from this client/peer arrived
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Remote.IRemoteTcpPeer.CustomObject">
+            <summary>
+            You can set it to your own custom object that implements <see cref="T:System.IDisposable"/>. Your custom object will be disposed with this remote peer
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Remote.IRemoteTcpPeer.IPEndPoint">
+            <summary>
+            Remote tcp peer endpoint
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Remote.IRemoteTcpPeer.TcpStream">
+            <summary>
+            Tcp stream
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Remote.IRemoteTcpPeer.TcpClient">
+            <summary>
+            Underlying <see cref="T:System.Net.Sockets.TcpClient"/>. You should use <see cref="P:AsyncNet.Tcp.Remote.IRemoteTcpPeer.TcpStream"/> instead of TcpClient.GetStream()
+            </summary>
+        </member>
+        <member name="M:AsyncNet.Tcp.Remote.IRemoteTcpPeer.Disconnect(AsyncNet.Tcp.Connection.ConnectionCloseReason)">
+            <summary>
+            Disconnects this peer/client
+            </summary>
+            <param name="reason">Disconnect reason</param>
+        </member>
+        <member name="M:AsyncNet.Tcp.Remote.IRemoteTcpPeer.Post(System.Byte[])">
+            <summary>
+            Adds data to the send queue. It will fail if send queue buffer is full returning false
+            </summary>
+            <param name="data"></param>
+            <returns>True - added to the send queue. False - send queue buffer is full or this client/peer is disconnected</returns>
+        </member>
+        <member name="M:AsyncNet.Tcp.Remote.IRemoteTcpPeer.Post(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Adds data to the send queue. It will fail if send queue buffer is full returning false
+            </summary>
+            <param name="buffer">Buffer containing data to send</param>
+            <param name="offset">Data offset in <paramref name="buffer"/></param>
+            <param name="count">Numbers of bytes to send</param>
+            <returns>True - added to the send queue. False - send queue buffer is full or this client/peer is disconnected</returns>
+        </member>
+        <member name="M:AsyncNet.Tcp.Remote.IRemoteTcpPeer.SendAsync(System.Byte[])">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="data">Data to send</param>
+            <returns>True - added to the send queue. False - this client/peer is disconnected</returns>
+        </member>
+        <member name="M:AsyncNet.Tcp.Remote.IRemoteTcpPeer.SendAsync(System.Byte[],System.Threading.CancellationToken)">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="data">Data to send</param>
+            <param name="cancellationToken">Cancellation token for cancelling this operation</param>
+            <returns>True - added to the send queue. False - this client/peer is disconnected</returns>
+        </member>
+        <member name="M:AsyncNet.Tcp.Remote.IRemoteTcpPeer.SendAsync(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="buffer">Buffer containing data to send</param>
+            <param name="offset">Data offset in <paramref name="buffer"/></param>
+            <param name="count">Numbers of bytes to send</param>
+            <returns>True - added to the send queue. False - send queue buffer is full or this client/peer is disconnected</returns>
+        </member>
+        <member name="M:AsyncNet.Tcp.Remote.IRemoteTcpPeer.SendAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="buffer">Buffer containing data to send</param>
+            <param name="offset">Data offset in <paramref name="buffer"/></param>
+            <param name="count">Numbers of bytes to send</param>
+            <param name="cancellationToken">Cancellation token for cancelling this operation</param>
+            <returns>True - added to the send queue. False - send queue buffer is full or this client/peer is disconnected</returns>
+        </member>
+        <member name="M:AsyncNet.Tcp.Remote.IRemoteTcpPeer.SwitchProtocol(System.Func{AsyncNet.Tcp.Remote.IRemoteTcpPeer,AsyncNet.Tcp.Defragmentation.IProtocolFrameDefragmenter})">
+            <summary>
+            Changes the protocol frame defragmenter used for TCP deframing/defragmentation
+            </summary>
+            <param name="protocolFrameDefragmenterFactory">Factory for constructing <see cref="T:AsyncNet.Tcp.Defragmentation.IProtocolFrameDefragmenter"/></param>
+        </member>
+        <member name="T:AsyncNet.Tcp.Remote.RemoteTcpPeer">
+            <summary>
+            An implementation of remote tcp peer
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Remote.RemoteTcpPeer.FrameArrived">
+            <summary>
+            Fires when TCP frame from this client/peer arrived
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Remote.RemoteTcpPeer.ConnectionClosed">
+            <summary>
+            Fires when connection with this client/peer closes
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Remote.RemoteTcpPeer.TcpClient">
+            <summary>
+            Underlying <see cref="P:AsyncNet.Tcp.Remote.RemoteTcpPeer.TcpClient" />. You should use <see cref="P:AsyncNet.Tcp.Remote.IRemoteTcpPeer.TcpStream" /> instead of TcpClient.GetStream()
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Remote.RemoteTcpPeer.TcpStream">
+            <summary>
+            Tcp stream
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Remote.RemoteTcpPeer.IPEndPoint">
+            <summary>
+            Remote tcp peer endpoint
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Remote.RemoteTcpPeer.WhenFrameArrived">
+            <summary>
+            Produces an element when TCP frame from this client/peer arrived
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Remote.RemoteTcpPeer.WhenConnectionClosed">
+            <summary>
+            Produces an element when connection with this client/peer closes
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Remote.RemoteTcpPeer.CustomObject">
+            <summary>
+            You can set it to your own custom object that implements <see cref="T:System.IDisposable" />. Your custom object will be disposed with this remote peer
+            </summary>
+        </member>
+        <member name="M:AsyncNet.Tcp.Remote.RemoteTcpPeer.SendAsync(System.Byte[])">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="data">Data to send</param>
+            <returns>True - added to the send queue. False - this client/peer is disconnected</returns>
+        </member>
+        <member name="M:AsyncNet.Tcp.Remote.RemoteTcpPeer.SendAsync(System.Byte[],System.Threading.CancellationToken)">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="data">Data to send</param>
+            <param name="cancellationToken">Cancellation token for cancelling this operation</param>
+            <returns>True - added to the send queue. False - this client/peer is disconnected</returns>
+        </member>
+        <member name="M:AsyncNet.Tcp.Remote.RemoteTcpPeer.SendAsync(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="buffer">Buffer containing data to send</param>
+            <param name="offset">Data offset in <paramref name="buffer" /></param>
+            <param name="count">Numbers of bytes to send</param>
+            <returns>True - added to the send queue. False - send queue buffer is full or this client/peer is disconnected</returns>
+        </member>
+        <member name="M:AsyncNet.Tcp.Remote.RemoteTcpPeer.SendAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="buffer">Buffer containing data to send</param>
+            <param name="offset">Data offset in <paramref name="buffer" /></param>
+            <param name="count">Numbers of bytes to send</param>
+            <param name="cancellationToken">Cancellation token for cancelling this operation</param>
+            <returns>True - added to the send queue. False - send queue buffer is full or this client/peer is disconnected</returns>
+        </member>
+        <member name="M:AsyncNet.Tcp.Remote.RemoteTcpPeer.Post(System.Byte[])">
+            <summary>
+            Adds data to the send queue. It will fail if send queue buffer is full returning false
+            </summary>
+            <param name="data"></param>
+            <returns>True - added to the send queue. False - send queue buffer is full or this client/peer is disconnected</returns>
+        </member>
+        <member name="M:AsyncNet.Tcp.Remote.RemoteTcpPeer.Post(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Adds data to the send queue. It will fail if send queue buffer is full returning false
+            </summary>
+            <param name="buffer">Buffer containing data to send</param>
+            <param name="offset">Data offset in <paramref name="buffer" /></param>
+            <param name="count">Numbers of bytes to send</param>
+            <returns>True - added to the send queue. False - send queue buffer is full or this client/peer is disconnected</returns>
+        </member>
+        <member name="M:AsyncNet.Tcp.Remote.RemoteTcpPeer.Disconnect(AsyncNet.Tcp.Connection.ConnectionCloseReason)">
+            <summary>
+            Disconnects this peer/client
+            </summary>
+            <param name="reason">Disconnect reason</param>
+        </member>
+        <member name="M:AsyncNet.Tcp.Remote.RemoteTcpPeer.SwitchProtocol(System.Func{AsyncNet.Tcp.Remote.IRemoteTcpPeer,AsyncNet.Tcp.Defragmentation.IProtocolFrameDefragmenter})">
+            <summary>
+            Changes the protocol frame defragmenter used for TCP deframing/defragmentation
+            </summary>
+            <param name="protocolFrameDefragmenterFactory">Factory for constructing <see cref="T:AsyncNet.Tcp.Defragmentation.IProtocolFrameDefragmenter" /></param>
+        </member>
+        <member name="T:AsyncNet.Tcp.Server.AsyncNetTcpServer">
+            <summary>
+            An implementation of asynchronous TCP server
+            </summary>
+        </member>
+        <member name="M:AsyncNet.Tcp.Server.AsyncNetTcpServer.#ctor(System.Int32)">
+            <summary>
+            Constructs TCP server that runs on particular port and has default configuration
+            </summary>
+            <param name="port">A port that TCP server will run on</param>
+        </member>
+        <member name="M:AsyncNet.Tcp.Server.AsyncNetTcpServer.#ctor(AsyncNet.Tcp.Server.AsyncNetTcpServerConfig)">
+            <summary>
+            Constructs TCP server with custom configuration
+            </summary>
+            <param name="config">TCP server configuration</param>
+        </member>
+        <member name="E:AsyncNet.Tcp.Server.AsyncNetTcpServer.ServerStarted">
+            <summary>
+            Fires when server started running
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Server.AsyncNetTcpServer.ServerStopped">
+            <summary>
+            Fires when server stopped running 
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Server.AsyncNetTcpServer.FrameArrived">
+            <summary>
+            Fires when TCP frame arrived from particular client/peer
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Server.AsyncNetTcpServer.ServerErrorOccured">
+            <summary>
+            Fires when there was a problem with the server
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Server.AsyncNetTcpServer.RemoteTcpPeerErrorOccured">
+            <summary>
+            Fires when there was an error while handling particular client/peer
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Server.AsyncNetTcpServer.UnhandledErrorOccured">
+            <summary>
+            Fires when unhandled error occured - e.g. when event subscriber throws an exception
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Server.AsyncNetTcpServer.ConnectionEstablished">
+            <summary>
+            Fires when new client/peer connects to the server
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Server.AsyncNetTcpServer.ConnectionClosed">
+            <summary>
+            Fires when connection closes for particular client/peer
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Server.AsyncNetTcpServer.WhenServerStarted">
+            <summary>
+            Produces an element when server started running
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Server.AsyncNetTcpServer.WhenServerStopped">
+            <summary>
+            Produces an element when server stopped running 
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Server.AsyncNetTcpServer.WhenFrameArrived">
+            <summary>
+            Produces an element when TCP frame arrived from particular client/peer
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Server.AsyncNetTcpServer.WhenServerErrorOccured">
+            <summary>
+            Produces an element when there was a problem with the server
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Server.AsyncNetTcpServer.WhenRemoteTcpPeerErrorOccured">
+            <summary>
+            Produces an element when there was an error while handling particular client/peer
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Server.AsyncNetTcpServer.WhenUnhandledErrorOccured">
+            <summary>
+            Produces an element when unhandled error occured - e.g. when event subscriber throws an exception
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Server.AsyncNetTcpServer.WhenConnectionEstablished">
+            <summary>
+            Produces an element when new client/peer connects to the server
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Server.AsyncNetTcpServer.WhenConnectionClosed">
+            <summary>
+            Produces an element when connection closes for particular client/peer
+            </summary>
+        </member>
+        <member name="M:AsyncNet.Tcp.Server.AsyncNetTcpServer.StartAsync">
+            <summary>
+            Asynchronously starts the server that will run indefinitely
+            </summary>
+            <returns><see cref="T:System.Threading.Tasks.Task" /></returns>
+        </member>
+        <member name="M:AsyncNet.Tcp.Server.AsyncNetTcpServer.StartAsync(System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously starts the server that will run until <paramref name="cancellationToken" /> is cancelled
+            </summary>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns><see cref="T:System.Threading.Tasks.Task" /></returns>
+        </member>
+        <member name="T:AsyncNet.Tcp.Server.IAsyncNetTcpServer">
+            <summary>
+            An interface for asynchronous TCP server
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Server.IAsyncNetTcpServer.WhenConnectionClosed">
+            <summary>
+            Produces an element when connection closes for particular client/peer
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Server.IAsyncNetTcpServer.WhenConnectionEstablished">
+            <summary>
+            Produces an element when new client/peer connects to the server
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Server.IAsyncNetTcpServer.WhenFrameArrived">
+            <summary>
+            Produces an element when TCP frame arrived from particular client/peer
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Server.IAsyncNetTcpServer.WhenRemoteTcpPeerErrorOccured">
+            <summary>
+            Produces an element when there was an error while handling particular client/peer
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Server.IAsyncNetTcpServer.WhenServerErrorOccured">
+            <summary>
+            Produces an element when there was a problem with the server
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Server.IAsyncNetTcpServer.WhenServerStarted">
+            <summary>
+            Produces an element when server started running
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Server.IAsyncNetTcpServer.WhenServerStopped">
+            <summary>
+            Produces an element when server stopped running 
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Tcp.Server.IAsyncNetTcpServer.WhenUnhandledErrorOccured">
+            <summary>
+            Produces an element when unhandled error occured - e.g. when event subscriber throws an exception
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Server.IAsyncNetTcpServer.ConnectionClosed">
+            <summary>
+            Fires when connection closes for particular client/peer
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Server.IAsyncNetTcpServer.ConnectionEstablished">
+            <summary>
+            Fires when new client/peer connects to the server
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Server.IAsyncNetTcpServer.FrameArrived">
+            <summary>
+            Fires when TCP frame arrived from particular client/peer
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Server.IAsyncNetTcpServer.RemoteTcpPeerErrorOccured">
+            <summary>
+            Fires when there was an error while handling particular client/peer
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Server.IAsyncNetTcpServer.ServerErrorOccured">
+            <summary>
+            Fires when there was a problem with the server
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Server.IAsyncNetTcpServer.ServerStarted">
+            <summary>
+            Fires when server started running
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Server.IAsyncNetTcpServer.ServerStopped">
+            <summary>
+            Fires when server stopped running 
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Tcp.Server.IAsyncNetTcpServer.UnhandledErrorOccured">
+            <summary>
+            Fires when unhandled error occured - e.g. when event subscriber throws an exception
+            </summary>
+        </member>
+        <member name="M:AsyncNet.Tcp.Server.IAsyncNetTcpServer.StartAsync">
+            <summary>
+            Asynchronously starts the server that will run indefinitely
+            </summary>
+            <returns><see cref="T:System.Threading.Tasks.Task"/></returns>
+        </member>
+        <member name="M:AsyncNet.Tcp.Server.IAsyncNetTcpServer.StartAsync(System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously starts the server that will run until <paramref name="cancellationToken"/> is cancelled
+            </summary>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns><see cref="T:System.Threading.Tasks.Task"/></returns>
+        </member>
+    </members>
+</doc>

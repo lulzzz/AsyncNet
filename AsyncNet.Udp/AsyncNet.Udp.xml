@@ -1,0 +1,557 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AsyncNet.Udp</name>
+    </assembly>
+    <members>
+        <member name="T:AsyncNet.Udp.Client.AsyncNetUdpClient">
+            <summary>
+            An implementation of asynchronous UDP client
+            </summary>
+        </member>
+        <member name="M:AsyncNet.Udp.Client.AsyncNetUdpClient.#ctor(System.String,System.Int32)">
+            <summary>
+            Constructs UDP client that connects to the particular server and has default configuration
+            </summary>
+            <param name="targetHostname">Server hostname</param>
+            <param name="targetPort">Server port</param>
+        </member>
+        <member name="M:AsyncNet.Udp.Client.AsyncNetUdpClient.#ctor(AsyncNet.Udp.Client.AsyncNetUdpClientConfig)">
+            <summary>
+            Constructs UDP client with custom configuration
+            </summary>
+            <param name="config">UDP client configuration</param>
+        </member>
+        <member name="E:AsyncNet.Udp.Client.AsyncNetUdpClient.ClientStarted">
+            <summary>
+            Fires when client started running
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Udp.Client.AsyncNetUdpClient.ClientReady">
+            <summary>
+            Fires when client is ready for sending and receiving packets
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Udp.Client.AsyncNetUdpClient.ClientStopped">
+            <summary>
+            Fires when client stopped running
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Udp.Client.AsyncNetUdpClient.ClientErrorOccured">
+            <summary>
+            Fires when there was a problem with the client
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Udp.Client.AsyncNetUdpClient.UdpPacketArrived">
+            <summary>
+            Fires when packet arrived from server
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Udp.Client.AsyncNetUdpClient.UdpSendErrorOccured">
+            <summary>
+            Fires when there was a problem while sending packet to the target server
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Client.AsyncNetUdpClient.WhenClientStarted">
+            <summary>
+            Produces an element when client started running
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Client.AsyncNetUdpClient.WhenClientReady">
+            <summary>
+            Produces an element when client is ready for sending and receiving packets
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Client.AsyncNetUdpClient.WhenClientStopped">
+            <summary>
+            Produces an element when client stopped running
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Client.AsyncNetUdpClient.WhenClientErrorOccured">
+            <summary>
+            Produces an element when there was a problem with the client
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Client.AsyncNetUdpClient.WhenUdpPacketArrived">
+            <summary>
+            Produces an element when packet arrived from server
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Client.AsyncNetUdpClient.WhenUdpSendErrorOccured">
+            <summary>
+            Produces an element when there was a problem while sending packet to the target server
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Client.AsyncNetUdpClient.UdpClient">
+            <summary>
+            Underlying <see cref="P:AsyncNet.Udp.Client.AsyncNetUdpClient.UdpClient" />
+            </summary>
+        </member>
+        <member name="M:AsyncNet.Udp.Client.AsyncNetUdpClient.StartAsync">
+            <summary>
+            Asynchronously starts the client that will run indefinitely
+            </summary>
+            <returns><see cref="T:System.Threading.Tasks.Task" /></returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Client.AsyncNetUdpClient.StartAsync(System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously starts the client that will run until <paramref name="cancellationToken" /> is cancelled
+            </summary>
+            <param name="cancellationToken"></param>
+            <returns><see cref="T:System.Threading.Tasks.Task" /></returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Client.AsyncNetUdpClient.Post(System.Byte[])">
+            <summary>
+            Adds data to the send queue. It will fail if send queue buffer is full returning false
+            </summary>
+            <param name="data">Data to send</param>
+            <returns>True - added to the send queue. False - send queue buffer is full or client is stopped</returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Client.AsyncNetUdpClient.Post(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Adds data to the send queue. It will fail if send queue buffer is full returning false
+            </summary>
+            <param name="buffer">Buffer containing data to send</param>
+            <param name="offset">Data offset in <paramref name="buffer" /></param>
+            <param name="count">Numbers of bytes to send</param>
+            <returns>True - added to the send queue. False - send queue buffer is full or client is stopped</returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Client.AsyncNetUdpClient.SendAsync(System.Byte[])">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="data">Data to send</param>
+            <returns>True - added to the send queue. False - client is stopped</returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Client.AsyncNetUdpClient.SendAsync(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="buffer">Buffer containing data to send</param>
+            <param name="offset">Data offset in <paramref name="buffer" /></param>
+            <param name="count">Numbers of bytes to send</param>
+            <returns>True - added to the send queue. False - client is stopped</returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Client.AsyncNetUdpClient.SendAsync(System.Byte[],System.Threading.CancellationToken)">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="data"></param>
+            <param name="cancellationToken">Cancellation token for cancelling this operation</param>
+            <returns>True - added to the send queue. False - client is stopped</returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Client.AsyncNetUdpClient.SendAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="buffer">Buffer containing data to send</param>
+            <param name="offset">Data offset in <paramref name="buffer" /></param>
+            <param name="count">Numbers of bytes to send</param>
+            <param name="cancellationToken">Cancellation token for cancelling this operation</param>
+            <returns>True - added to the send queue. False - client is stopped</returns>
+        </member>
+        <member name="T:AsyncNet.Udp.Client.IAsyncNetUdpClient">
+            <summary>
+            An interface for asynchronous UDP client
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Client.IAsyncNetUdpClient.UdpClient">
+            <summary>
+            Underlying <see cref="T:System.Net.Sockets.UdpClient"/>
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Client.IAsyncNetUdpClient.WhenClientErrorOccured">
+            <summary>
+            Produces an element when there was a problem with the client
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Client.IAsyncNetUdpClient.WhenClientStarted">
+            <summary>
+            Produces an element when client started running
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Client.IAsyncNetUdpClient.WhenClientReady">
+            <summary>
+            Produces an element when client is ready for sending and receiving packets
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Client.IAsyncNetUdpClient.WhenClientStopped">
+            <summary>
+            Produces an element when client stopped running
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Client.IAsyncNetUdpClient.WhenUdpPacketArrived">
+            <summary>
+            Produces an element when packet arrived from server
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Client.IAsyncNetUdpClient.WhenUdpSendErrorOccured">
+            <summary>
+            Produces an element when there was a problem while sending packet to the target server
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Udp.Client.IAsyncNetUdpClient.ClientErrorOccured">
+            <summary>
+            Fires when there was a problem with the client
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Udp.Client.IAsyncNetUdpClient.ClientStarted">
+            <summary>
+            Fires when client started running
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Udp.Client.IAsyncNetUdpClient.ClientReady">
+            <summary>
+            Fires when client is ready for sending and receiving packets
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Udp.Client.IAsyncNetUdpClient.ClientStopped">
+            <summary>
+            Fires when client stopped running
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Udp.Client.IAsyncNetUdpClient.UdpPacketArrived">
+            <summary>
+            Fires when packet arrived from server
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Udp.Client.IAsyncNetUdpClient.UdpSendErrorOccured">
+            <summary>
+            Fires when there was a problem while sending packet to the target server
+            </summary>
+        </member>
+        <member name="M:AsyncNet.Udp.Client.IAsyncNetUdpClient.Post(System.Byte[])">
+            <summary>
+            Adds data to the send queue. It will fail if send queue buffer is full returning false
+            </summary>
+            <param name="data">Data to send</param>
+            <returns>True - added to the send queue. False - send queue buffer is full or client is stopped</returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Client.IAsyncNetUdpClient.Post(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Adds data to the send queue. It will fail if send queue buffer is full returning false
+            </summary>
+            <param name="buffer">Buffer containing data to send</param>
+            <param name="offset">Data offset in <paramref name="buffer"/></param>
+            <param name="count">Numbers of bytes to send</param>
+            <returns>True - added to the send queue. False - send queue buffer is full or client is stopped</returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Client.IAsyncNetUdpClient.SendAsync(System.Byte[])">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="data">Data to send</param>
+            <returns>True - added to the send queue. False - client is stopped</returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Client.IAsyncNetUdpClient.SendAsync(System.Byte[],System.Threading.CancellationToken)">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="data"></param>
+            <param name="cancellationToken">Cancellation token for cancelling this operation</param>
+            <returns>True - added to the send queue. False - client is stopped</returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Client.IAsyncNetUdpClient.SendAsync(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="buffer">Buffer containing data to send</param>
+            <param name="offset">Data offset in <paramref name="buffer"/></param>
+            <param name="count">Numbers of bytes to send</param>
+            <returns>True - added to the send queue. False - client is stopped</returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Client.IAsyncNetUdpClient.SendAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="buffer">Buffer containing data to send</param>
+            <param name="offset">Data offset in <paramref name="buffer"/></param>
+            <param name="count">Numbers of bytes to send</param>
+            <param name="cancellationToken">Cancellation token for cancelling this operation</param>
+            <returns>True - added to the send queue. False - client is stopped</returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Client.IAsyncNetUdpClient.StartAsync">
+            <summary>
+            Asynchronously starts the client that will run indefinitely
+            </summary>
+            <returns><see cref="T:System.Threading.Tasks.Task" /></returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Client.IAsyncNetUdpClient.StartAsync(System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously starts the client that will run until <paramref name="cancellationToken"/> is cancelled
+            </summary>
+            <param name="cancellationToken"></param>
+            <returns><see cref="T:System.Threading.Tasks.Task" /></returns>
+        </member>
+        <member name="T:AsyncNet.Udp.Server.AsyncNetUdpServer">
+            <summary>
+            An implementation of asynchronous UDP server
+            </summary>
+        </member>
+        <member name="M:AsyncNet.Udp.Server.AsyncNetUdpServer.#ctor(System.Int32)">
+            <summary>
+            Constructs UDP server that runs on particular port and has default configuration
+            </summary>
+            <param name="port">A port that UDP server will run on</param>
+        </member>
+        <member name="M:AsyncNet.Udp.Server.AsyncNetUdpServer.#ctor(AsyncNet.Udp.Server.AsyncNetUdpServerConfig)">
+            <summary>
+            Constructs UDP server with custom configuration
+            </summary>
+            <param name="config">UDP server configuration</param>
+        </member>
+        <member name="E:AsyncNet.Udp.Server.AsyncNetUdpServer.ServerStarted">
+            <summary>
+            Fires when server started running
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Udp.Server.AsyncNetUdpServer.ServerStopped">
+            <summary>
+            Fires when server stopped running
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Udp.Server.AsyncNetUdpServer.ServerErrorOccured">
+            <summary>
+            Fires when there was a problemw with the server
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Udp.Server.AsyncNetUdpServer.UdpPacketArrived">
+            <summary>
+            Fires when packet arrived from particular client/peer
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Udp.Server.AsyncNetUdpServer.UdpSendErrorOccured">
+            <summary>
+            Fires when there was a problem while sending packet to the target client/peer
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Server.AsyncNetUdpServer.WhenServerStarted">
+            <summary>
+            Produces an element when server started running
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Server.AsyncNetUdpServer.WhenServerStopped">
+            <summary>
+            Produces an element when server stopped running 
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Server.AsyncNetUdpServer.WhenServerErrorOccured">
+            <summary>
+            Produces an element when there was a problemw with the server
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Server.AsyncNetUdpServer.WhenUdpPacketArrived">
+            <summary>
+            Produces an element when packet arrived from particular client/peer
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Server.AsyncNetUdpServer.WhenUdpSendErrorOccured">
+            <summary>
+            Produces an element when there was a problem while sending packet to the target client/peer
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Server.AsyncNetUdpServer.UdpClient">
+            <summary>
+            Underlying <see cref="P:AsyncNet.Udp.Server.AsyncNetUdpServer.UdpClient" />
+            </summary>
+        </member>
+        <member name="M:AsyncNet.Udp.Server.AsyncNetUdpServer.StartAsync">
+            <summary>
+            Asynchronously starts the server that will run indefinitely
+            </summary>
+            <returns><see cref="T:System.Threading.Tasks.Task" /></returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Server.AsyncNetUdpServer.StartAsync(System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously starts the server that will run until <paramref name="cancellationToken" /> is cancelled
+            </summary>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns><see cref="T:System.Threading.Tasks.Task" /></returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Server.AsyncNetUdpServer.Post(System.Byte[],System.Net.IPEndPoint)">
+            <summary>
+            Adds data to the send queue. It will fail if send queue buffer is full returning false
+            </summary>
+            <param name="data">Data to send</param>
+            <param name="remoteEndPoint">Client/peer endpoint</param>
+            <returns>True - added to the send queue. False - send queue buffer is full or server is stopped</returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Server.AsyncNetUdpServer.Post(System.Byte[],System.Int32,System.Int32,System.Net.IPEndPoint)">
+            <summary>
+            Adds data to the send queue. It will fail if send queue buffer is full returning false
+            </summary>
+            <param name="buffer">Buffer containing data to send</param>
+            <param name="offset">Data offset in <paramref name="buffer" /></param>
+            <param name="count">Numbers of bytes to send</param>
+            <param name="remoteEndPoint">Client/peer endpoint</param>
+            <returns>True - added to the send queue. False - send queue buffer is full or server is stopped</returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Server.AsyncNetUdpServer.SendAsync(System.Byte[],System.Net.IPEndPoint)">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="data">Data to send</param>
+            <param name="remoteEndPoint">Client/peer endpoint</param>
+            <returns>True - added to the send queue. False - server is stopped</returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Server.AsyncNetUdpServer.SendAsync(System.Byte[],System.Int32,System.Int32,System.Net.IPEndPoint)">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="buffer">Buffer containing data to send</param>
+            <param name="offset">Data offset in <paramref name="buffer" /></param>
+            <param name="count">Numbers of bytes to send</param>
+            <param name="remoteEndPoint">Client/peer endpoint</param>
+            <returns>True - added to the send queue. False - server is stopped</returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Server.AsyncNetUdpServer.SendAsync(System.Byte[],System.Net.IPEndPoint,System.Threading.CancellationToken)">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="data">Data to send</param>
+            <param name="remoteEndPoint">Client/peer endpoint</param>
+            <param name="cancellationToken">Cancellation token for cancelling this operation</param>
+            <returns>True - added to the send queue. False - server is stopped</returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Server.AsyncNetUdpServer.SendAsync(System.Byte[],System.Int32,System.Int32,System.Net.IPEndPoint,System.Threading.CancellationToken)">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="buffer">Buffer containing data to send</param>
+            <param name="offset">Data offset in <paramref name="buffer" /></param>
+            <param name="count">Numbers of bytes to send</param>
+            <param name="remoteEndPoint">Client/peer endpoint</param>
+            <param name="cancellationToken">Cancellation token for cancelling this operation</param>
+            <returns>True - added to the send queue. False - server is stopped</returns>
+        </member>
+        <member name="T:AsyncNet.Udp.Server.IAsyncNetUdpServer">
+            <summary>
+            An interface for asynchronous UDP server
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Server.IAsyncNetUdpServer.UdpClient">
+            <summary>
+            Underlying <see cref="T:System.Net.Sockets.UdpClient"/>
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Server.IAsyncNetUdpServer.WhenServerErrorOccured">
+            <summary>
+            Produces an element when there was a problemw with the server
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Server.IAsyncNetUdpServer.WhenServerStarted">
+            <summary>
+            Produces an element when server started running
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Server.IAsyncNetUdpServer.WhenServerStopped">
+            <summary>
+            Produces an element when server stopped running 
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Server.IAsyncNetUdpServer.WhenUdpPacketArrived">
+            <summary>
+            Produces an element when packet arrived from particular client/peer
+            </summary>
+        </member>
+        <member name="P:AsyncNet.Udp.Server.IAsyncNetUdpServer.WhenUdpSendErrorOccured">
+            <summary>
+            Produces an element when there was a problem while sending packet to the target client/peer
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Udp.Server.IAsyncNetUdpServer.ServerErrorOccured">
+            <summary>
+            Fires when there was a problemw with the server
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Udp.Server.IAsyncNetUdpServer.ServerStarted">
+            <summary>
+            Fires when server started running
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Udp.Server.IAsyncNetUdpServer.ServerStopped">
+            <summary>
+            Fires when server stopped running
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Udp.Server.IAsyncNetUdpServer.UdpPacketArrived">
+            <summary>
+            Fires when packet arrived from particular client/peer
+            </summary>
+        </member>
+        <member name="E:AsyncNet.Udp.Server.IAsyncNetUdpServer.UdpSendErrorOccured">
+            <summary>
+            Fires when there was a problem while sending packet to the target client/peer
+            </summary>
+        </member>
+        <member name="M:AsyncNet.Udp.Server.IAsyncNetUdpServer.Post(System.Byte[],System.Int32,System.Int32,System.Net.IPEndPoint)">
+            <summary>
+            Adds data to the send queue. It will fail if send queue buffer is full returning false
+            </summary>
+            <param name="buffer">Buffer containing data to send</param>
+            <param name="offset">Data offset in <paramref name="buffer"/></param>
+            <param name="count">Numbers of bytes to send</param>
+            <param name="remoteEndPoint">Client/peer endpoint</param>
+            <returns>True - added to the send queue. False - send queue buffer is full or server is stopped</returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Server.IAsyncNetUdpServer.Post(System.Byte[],System.Net.IPEndPoint)">
+            <summary>
+            Adds data to the send queue. It will fail if send queue buffer is full returning false
+            </summary>
+            <param name="data">Data to send</param>
+            <param name="remoteEndPoint">Client/peer endpoint</param>
+            <returns>True - added to the send queue. False - send queue buffer is full or server is stopped</returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Server.IAsyncNetUdpServer.SendAsync(System.Byte[],System.Int32,System.Int32,System.Net.IPEndPoint)">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="buffer">Buffer containing data to send</param>
+            <param name="offset">Data offset in <paramref name="buffer"/></param>
+            <param name="count">Numbers of bytes to send</param>
+            <param name="remoteEndPoint">Client/peer endpoint</param>
+            <returns>True - added to the send queue. False - server is stopped</returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Server.IAsyncNetUdpServer.SendAsync(System.Byte[],System.Int32,System.Int32,System.Net.IPEndPoint,System.Threading.CancellationToken)">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="buffer">Buffer containing data to send</param>
+            <param name="offset">Data offset in <paramref name="buffer"/></param>
+            <param name="count">Numbers of bytes to send</param>
+            <param name="remoteEndPoint">Client/peer endpoint</param>
+            <param name="cancellationToken">Cancellation token for cancelling this operation</param>
+            <returns>True - added to the send queue. False - server is stopped</returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Server.IAsyncNetUdpServer.SendAsync(System.Byte[],System.Net.IPEndPoint)">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="data">Data to send</param>
+            <param name="remoteEndPoint">Client/peer endpoint</param>
+            <returns>True - added to the send queue. False - server is stopped</returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Server.IAsyncNetUdpServer.SendAsync(System.Byte[],System.Net.IPEndPoint,System.Threading.CancellationToken)">
+            <summary>
+            Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+            </summary>
+            <param name="data">Data to send</param>
+            <param name="remoteEndPoint">Client/peer endpoint</param>
+            <param name="cancellationToken">Cancellation token for cancelling this operation</param>
+            <returns>True - added to the send queue. False - server is stopped</returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Server.IAsyncNetUdpServer.StartAsync">
+            <summary>
+            Asynchronously starts the server that will run indefinitely
+            </summary>
+            <returns><see cref="T:System.Threading.Tasks.Task"/></returns>
+        </member>
+        <member name="M:AsyncNet.Udp.Server.IAsyncNetUdpServer.StartAsync(System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously starts the server that will run until <paramref name="cancellationToken"/> is cancelled
+            </summary>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns><see cref="T:System.Threading.Tasks.Task"/></returns>
+        </member>
+    </members>
+</doc>
