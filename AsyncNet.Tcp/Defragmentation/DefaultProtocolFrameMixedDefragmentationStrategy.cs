@@ -1,6 +1,6 @@
 ﻿namespace AsyncNet.Tcp.Defragmentation
 {
-    public class DefaultProtocolFrameDefragmentationStrategy : IMixedDefragmentationStrategy
+    public class DefaultProtocolFrameMixedDefragmentationStrategy : IMixedDefragmentationStrategy
     {
         public virtual int ReadBufferLength { get; protected set; } = 4096;
 

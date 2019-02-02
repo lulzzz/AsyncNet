@@ -11,7 +11,7 @@ namespace AsyncNet.Tcp.Server
 {
     public class AsyncNetTcpServerConfig
     {
-        public Func<IRemoteTcpPeer, IProtocolFrameDefragmenter> ProtocolFrameDefragmenterFactory { get; set; } = (_) => new MixedDefragmenter(new DefaultProtocolFrameDefragmentationStrategy());
+        public Func<IRemoteTcpPeer, IProtocolFrameDefragmenter> ProtocolFrameDefragmenterFactory { get; set; } = (_) => MixedDefragmenter.Default;
 
         public TimeSpan ConnectionTimeout { get; set; } = TimeSpan.Zero;
 

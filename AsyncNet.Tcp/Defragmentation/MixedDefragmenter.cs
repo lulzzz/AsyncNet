@@ -15,6 +15,12 @@ namespace AsyncNet.Tcp.Defragmentation
         private static readonly byte[] emptyArray = new byte[0];
         private readonly IMixedDefragmentationStrategy strategy;
         private readonly int readBufferLength;
+        private static readonly Lazy<MixedDefragmenter> @default = new Lazy<MixedDefragmenter>(() => new MixedDefragmenter(new DefaultProtocolFrameMixedDefragmentationStrategy()));
+
+        /// <summary>
+        /// Default mixed defragmenter using <see cref="DefaultProtocolFrameMixedDefragmentationStrategy"/>
+        /// </summary>
+        public static MixedDefragmenter Default => @default.Value;
 
         /// <summary>
         /// Constructs mixed frame defragmenter that is using <paramref name="strategy"/> for defragmentation strategy

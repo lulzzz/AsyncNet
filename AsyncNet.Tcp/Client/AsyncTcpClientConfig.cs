@@ -12,7 +12,7 @@ namespace AsyncNet.Tcp.Client
 {
     public class AsyncTcpClientConfig
     {
-        public Func<IRemoteTcpPeer, IProtocolFrameDefragmenter> ProtocolFrameDefragmenterFactory { get; set; } = (_) => new MixedDefragmenter(new DefaultProtocolFrameDefragmentationStrategy());
+        public Func<IRemoteTcpPeer, IProtocolFrameDefragmenter> ProtocolFrameDefragmenterFactory { get; set; } = (_) => MixedDefragmenter.Default;
 
         public string TargetHostname { get; set; }
 

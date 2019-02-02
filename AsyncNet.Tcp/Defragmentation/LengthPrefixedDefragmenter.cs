@@ -14,6 +14,12 @@ namespace AsyncNet.Tcp.Defragmentation
     {
         private readonly ILengthPrefixedDefragmentationStrategy strategy;
         private readonly int frameHeaderLength;
+        private static readonly Lazy<LengthPrefixedDefragmenter> @default = new Lazy<LengthPrefixedDefragmenter>(() => new LengthPrefixedDefragmenter(new DefaultProtocolFrameLengthPrefixedDefragmentationStrategy()));
+
+        /// <summary>
+        /// Default length prefixed defragmenter using <see cref="DefaultProtocolFrameLengthPrefixedDefragmentationStrategy"/>
+        /// </summary>
+        public static LengthPrefixedDefragmenter Default => @default.Value;
 
         /// <summary>
         /// Constructs length prefixed defragmenter that is using <paramref name="strategy"/> for defragmentation strategy
