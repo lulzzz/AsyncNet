@@ -10,11 +10,9 @@ namespace AsyncNet.Tcp.Defragmentation
     /// <summary>
     /// Mixed protocol frame defragmenter
     /// </summary>
-    public class MixedDefragmenter : IProtocolFrameDefragmenter
+    public class MixedDefragmenter : IProtocolFrameDefragmenter<IMixedDefragmentationStrategy>
     {
         private static readonly byte[] emptyArray = new byte[0];
-        private readonly IMixedDefragmentationStrategy strategy;
-        private readonly int readBufferLength;
         private static readonly Lazy<MixedDefragmenter> @default = new Lazy<MixedDefragmenter>(() => new MixedDefragmenter(new DefaultProtocolFrameMixedDefragmentationStrategy()));
 
         /// <summary>
@@ -23,13 +21,17 @@ namespace AsyncNet.Tcp.Defragmentation
         public static MixedDefragmenter Default => @default.Value;
 
         /// <summary>
+        /// Current mixed defragmentation strategy
+        /// </summary>
+        public virtual IMixedDefragmentationStrategy DefragmentationStrategy { get; set; }
+
+        /// <summary>
         /// Constructs mixed frame defragmenter that is using <paramref name="strategy"/> for defragmentation strategy
         /// </summary>
         /// <param name="strategy"></param>
         public MixedDefragmenter(IMixedDefragmentationStrategy strategy)
         {
-            this.strategy = strategy;
-            this.readBufferLength = strategy.ReadBufferLength;
+            this.DefragmentationStrategy = strategy;
         }
 
         /// <summary>
@@ -52,34 +54,72 @@ namespace AsyncNet.Tcp.Defragmentation
             {
                 try
                 {
-                    frameLength = this.strategy.GetFrameLength(frameBuffer, dataLength);
+                    frameLength = this.DefragmentationStrategy.GetFrameLength(frameBuffer, dataLength);
                 }
                 catch (Exception ex)
                 {
-                    throw new AsyncNetUnhandledException(nameof(this.strategy.GetFrameLength), ex);
+                    throw new AsyncNetUnhandledException(nameof(this.DefragmentationStrategy.GetFrameLength), ex);
                 }
             }
 
             while (frameLength == 0)
             {
-                try
+                if (this.DefragmentationStrategy.ReadType == MixedDefragmentationStrategyReadType.ReadFully)
                 {
-                    frameBuffer = new byte[dataLength + this.readBufferLength];
-
-                    if (dataLength > 0)
+                    if (this.DefragmentationStrategy.ReadBufferLength > dataLength)
                     {
-                        Array.Copy(leftOvers, 0, frameBuffer, 0, dataLength);
+                        frameBuffer = new byte[this.DefragmentationStrategy.ReadBufferLength];
                     }
-
-                    leftOvers = frameBuffer;
+                    else
+                    {
+                        frameBuffer = new byte[dataLength];
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    throw new AsyncNetUnhandledException(nameof(this.strategy.GetFrameLength), ex);
+                    frameBuffer = new byte[dataLength + this.DefragmentationStrategy.ReadBufferLength];
                 }
 
-                readLength = await remoteTcpPeer.TcpStream.ReadWithRealCancellationAsync(frameBuffer, dataLength, this.readBufferLength, cancellationToken)
-                    .ConfigureAwait(false);
+                if (dataLength > 0)
+                {
+                    Array.Copy(leftOvers, 0, frameBuffer, 0, dataLength);
+                }
+
+                leftOvers = frameBuffer;
+
+                if (this.DefragmentationStrategy.ReadType == MixedDefragmentationStrategyReadType.ReadNewFully)
+                {
+                    var open = await remoteTcpPeer.TcpStream.ReadUntilBufferIsFullAsync(frameBuffer, dataLength, this.DefragmentationStrategy.ReadBufferLength, cancellationToken)
+                        .ConfigureAwait(false);
+
+                    if (!open)
+                    {
+                        readLength = 0;
+                    }
+                    else
+                    {
+                        readLength = this.DefragmentationStrategy.ReadBufferLength;
+                    }
+                }
+                else if (this.DefragmentationStrategy.ReadType == MixedDefragmentationStrategyReadType.ReadFully)
+                {
+                    var open = await remoteTcpPeer.TcpStream.ReadUntilBufferIsFullAsync(frameBuffer, 0, this.DefragmentationStrategy.ReadBufferLength, cancellationToken)
+                        .ConfigureAwait(false);
+
+                    if (!open)
+                    {
+                        readLength = 0;
+                    }
+                    else
+                    {
+                        readLength = this.DefragmentationStrategy.ReadBufferLength;
+                    }
+                }
+                else
+                {
+                    readLength = await remoteTcpPeer.TcpStream.ReadWithRealCancellationAsync(frameBuffer, dataLength, this.DefragmentationStrategy.ReadBufferLength, cancellationToken)
+                        .ConfigureAwait(false);
+                }
 
                 if (readLength < 1)
                 {
@@ -90,11 +130,11 @@ namespace AsyncNet.Tcp.Defragmentation
 
                 try
                 {
-                    frameLength = this.strategy.GetFrameLength(frameBuffer, dataLength);
+                    frameLength = this.DefragmentationStrategy.GetFrameLength(frameBuffer, dataLength);
                 }
                 catch (Exception ex)
                 {
-                    throw new AsyncNetUnhandledException(nameof(this.strategy.GetFrameLength), ex);
+                    throw new AsyncNetUnhandledException(nameof(this.DefragmentationStrategy.GetFrameLength), ex);
                 }
 
                 if (frameLength < 0)
@@ -107,15 +147,8 @@ namespace AsyncNet.Tcp.Defragmentation
             {
                 if (frameBuffer.Length < frameLength)
                 {
-                    try
-                    {
-                        frameBuffer = new byte[frameLength];
-                        Array.Copy(leftOvers, 0, frameBuffer, 0, dataLength);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new AsyncNetUnhandledException(nameof(this.strategy.GetFrameLength), ex);
-                    }
+                    frameBuffer = new byte[frameLength];
+                    Array.Copy(leftOvers, 0, frameBuffer, 0, dataLength);
                 }
 
                 var open = await remoteTcpPeer.TcpStream.ReadUntilBufferIsFullAsync(frameBuffer, dataLength, frameLength - dataLength, cancellationToken)

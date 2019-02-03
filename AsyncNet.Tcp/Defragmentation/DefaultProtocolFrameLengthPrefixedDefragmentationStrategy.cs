@@ -2,9 +2,9 @@
 {
     public class DefaultProtocolFrameLengthPrefixedDefragmentationStrategy : ILengthPrefixedDefragmentationStrategy
     {
-        public int FrameHeaderLength => sizeof(short);
+        public virtual int FrameHeaderLength { get; protected set; } = sizeof(short);
 
-        public int GetFrameLength(byte[] data)
+        public virtual int GetFrameLength(byte[] data)
         {
             if (data.Length < sizeof(short))
                 return 0;

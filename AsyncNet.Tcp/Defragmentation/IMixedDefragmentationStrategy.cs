@@ -11,6 +11,11 @@
         int ReadBufferLength { get; }
 
         /// <summary>
+        /// Read type <see cref="MixedDefragmentationStrategyReadType"/>
+        /// </summary>
+        MixedDefragmentationStrategyReadType ReadType { get; }
+
+        /// <summary>
         /// Entire frame length including any delimiters / headers / prefixes / suffixes
         /// </summary>
         /// <param name="buffer"></param>

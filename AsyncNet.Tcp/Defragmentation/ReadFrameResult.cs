@@ -23,9 +23,9 @@
             this.LeftOvers = null;
         }
 
-        public static ReadFrameResult StreamClosedResult = new ReadFrameResult(ReadFrameStatus.StreamClosed);
+        public static ReadFrameResult StreamClosedResult { get; } = new ReadFrameResult(ReadFrameStatus.StreamClosed);
 
-        public static ReadFrameResult FrameDroppedResult = new ReadFrameResult(ReadFrameStatus.FrameDropped);
+        public static ReadFrameResult FrameDroppedResult { get; } = new ReadFrameResult(ReadFrameStatus.FrameDropped);
 
         public ReadFrameStatus ReadFrameStatus { get; }
 
