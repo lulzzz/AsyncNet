@@ -461,8 +461,7 @@ namespace AsyncNet.Tcp.Server
                 var tcpFrameArrivedData = new TcpFrameArrivedData(remoteTcpPeer, readFrameResult.FrameData);
                 var frameArrivedEventArgs = new TcpFrameArrivedEventArgs(tcpFrameArrivedData);
 
-                await this.OnFrameArrivedAsync(remoteTcpPeer, frameArrivedEventArgs)
-                    .ConfigureAwait(false);
+                this.OnFrameArrived(remoteTcpPeer, frameArrivedEventArgs);
             }
 
             remoteTcpPeer.ConnectionCloseReason = ConnectionCloseReason.LocalShutdown;
@@ -500,14 +499,13 @@ namespace AsyncNet.Tcp.Server
             }
         }
 
-        protected virtual async Task OnFrameArrivedAsync(RemoteTcpPeer remoteTcpPeer, TcpFrameArrivedEventArgs e)
+        protected virtual void OnFrameArrived(RemoteTcpPeer remoteTcpPeer, TcpFrameArrivedEventArgs e)
         {
             try
             {
-                await Task.WhenAll(
-                    Task.Run(() => remoteTcpPeer.OnFrameArrived(e)),
-                    Task.Run(() => this.FrameArrived?.Invoke(this, e)))
-                    .ConfigureAwait(false);
+                remoteTcpPeer.OnFrameArrived(e);
+
+                this.FrameArrived?.Invoke(this, e);
             }
             catch (Exception ex)
             {
