@@ -11,6 +11,7 @@ This repository contains multiple projects that fall into different category. Se
 * Easy to use TCP server
 * Easy to use TCP client
 * SSL support
+* Custom protocol deframing / defragmentation support
 ### Basic Usage
 #### TCP Server
 ```csharp
