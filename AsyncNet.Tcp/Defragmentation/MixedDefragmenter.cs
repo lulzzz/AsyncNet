@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using AsyncNet.Core.Exceptions;
 using AsyncNet.Core.Extensions;
 using AsyncNet.Tcp.Remote;
 
@@ -52,14 +51,7 @@ namespace AsyncNet.Tcp.Defragmentation
 
             if (dataLength > 0)
             {
-                try
-                {
-                    frameLength = this.DefragmentationStrategy.GetFrameLength(frameBuffer, dataLength);
-                }
-                catch (Exception ex)
-                {
-                    throw new AsyncNetUnhandledException(nameof(this.DefragmentationStrategy.GetFrameLength), ex);
-                }
+                frameLength = this.DefragmentationStrategy.GetFrameLength(frameBuffer, dataLength);
             }
 
             while (frameLength == 0)
@@ -128,14 +120,7 @@ namespace AsyncNet.Tcp.Defragmentation
 
                 dataLength += readLength;
 
-                try
-                {
-                    frameLength = this.DefragmentationStrategy.GetFrameLength(frameBuffer, dataLength);
-                }
-                catch (Exception ex)
-                {
-                    throw new AsyncNetUnhandledException(nameof(this.DefragmentationStrategy.GetFrameLength), ex);
-                }
+                frameLength = this.DefragmentationStrategy.GetFrameLength(frameBuffer, dataLength);
 
                 if (frameLength < 0)
                 {
@@ -171,6 +156,8 @@ namespace AsyncNet.Tcp.Defragmentation
 
                 Array.Copy(frameBuffer, 0, frameData, 0, frameLength);
                 Array.Copy(frameBuffer, frameLength, leftOvers, 0, leftOversLength);
+
+                frameBuffer = frameData;
             }
             else
             {

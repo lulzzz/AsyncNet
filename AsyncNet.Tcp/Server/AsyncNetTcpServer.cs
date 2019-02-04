@@ -18,7 +18,6 @@ using AsyncNet.Tcp.Connection;
 using AsyncNet.Tcp.Extensions;
 using AsyncNet.Tcp.Error.SystemEvent;
 using AsyncNet.Tcp.Error;
-using AsyncNet.Core.Exceptions;
 using AsyncNet.Core.Error;
 
 namespace AsyncNet.Tcp.Server
@@ -396,11 +395,32 @@ namespace AsyncNet.Tcp.Server
 
         protected virtual async Task HandleRemotePeerAsync(RemoteTcpPeer remoteTcpPeer, CancellationToken cancellationToken)
         {
-            await this.ReceiveFromRemotePeerAsync(remoteTcpPeer, cancellationToken).ConfigureAwait(false);
+            try
+            {
+                await this.ReceiveFromRemotePeerAsync(remoteTcpPeer, cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    remoteTcpPeer.ConnectionCloseReason = ConnectionCloseReason.Timeout;
+                    return;
+                }
+                else
+                {
+                    remoteTcpPeer.ConnectionCloseReason = ConnectionCloseReason.LocalShutdown;
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                var unhandledErrorEventArgs = new UnhandledErrorEventArgs(new ErrorData(ex));
+
+                this.OnUnhandledError(unhandledErrorEventArgs);
+            }
 
             var connectionClosedEventArgs = new ConnectionClosedEventArgs(new ConnectionClosedData(remoteTcpPeer, remoteTcpPeer.ConnectionCloseReason));
-            await this.OnConnectionClosedAsync(remoteTcpPeer, connectionClosedEventArgs)
-                .ConfigureAwait(false);
+            this.OnConnectionClosed(remoteTcpPeer, connectionClosedEventArgs);
         }
 
         protected virtual async Task ReceiveFromRemotePeerAsync(RemoteTcpPeer remoteTcpPeer, CancellationToken cancellationToken)
@@ -409,41 +429,12 @@ namespace AsyncNet.Tcp.Server
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                try
+                using (var timeoutCts = this.Config.ConnectionTimeout == TimeSpan.Zero ? new CancellationTokenSource() : new CancellationTokenSource(this.Config.ConnectionTimeout))
+                using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, cancellationToken))
                 {
-                    using (var timeoutCts = this.Config.ConnectionTimeout == TimeSpan.Zero ? new CancellationTokenSource() : new CancellationTokenSource(this.Config.ConnectionTimeout))
-                    using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, cancellationToken))
-                    {
-                        readFrameResult = await remoteTcpPeer.ProtocolFrameDefragmenter
-                            .ReadFrameAsync(remoteTcpPeer, readFrameResult?.LeftOvers, linkedCts.Token)
-                            .ConfigureAwait(false);
-                    }
-                }
-                catch (AsyncNetUnhandledException ex)
-                {
-                    var unhandledErrorEventArgs = new UnhandledErrorEventArgs(new ErrorData(ex.InnerException));
-                    this.OnUnhandledError(unhandledErrorEventArgs);
-
-                    remoteTcpPeer.ConnectionCloseReason = ConnectionCloseReason.Unknown;
-                    return;
-                }
-                catch (OperationCanceledException)
-                {
-                    if (!cancellationToken.IsCancellationRequested)
-                    {
-                        remoteTcpPeer.ConnectionCloseReason = ConnectionCloseReason.Timeout;
-                        return;
-                    }
-                    else
-                    {
-                        remoteTcpPeer.ConnectionCloseReason = ConnectionCloseReason.LocalShutdown;
-                        return;
-                    }
-                }
-                catch (Exception)
-                {
-                    remoteTcpPeer.ConnectionCloseReason = ConnectionCloseReason.Unknown;
-                    return;
+                    readFrameResult = await remoteTcpPeer.ProtocolFrameDefragmenter
+                        .ReadFrameAsync(remoteTcpPeer, readFrameResult?.LeftOvers, linkedCts.Token)
+                        .ConfigureAwait(false);
                 }
 
                 if (readFrameResult.ReadFrameStatus == Defragmentation.ReadFrameStatus.StreamClosed)
@@ -515,14 +506,12 @@ namespace AsyncNet.Tcp.Server
             }
         }
 
-        protected virtual async Task OnConnectionClosedAsync(RemoteTcpPeer remoteTcpPeer, ConnectionClosedEventArgs e)
+        protected virtual void OnConnectionClosed(RemoteTcpPeer remoteTcpPeer, ConnectionClosedEventArgs e)
         {
             try
             {
-                await Task.WhenAll(
-                    Task.Run(() => remoteTcpPeer.OnConnectionClosed(e)),
-                    Task.Run(() => this.ConnectionClosed?.Invoke(this, e)))
-                    .ConfigureAwait(false);
+                remoteTcpPeer.OnConnectionClosed(e);
+                this.ConnectionClosed?.Invoke(this, e);
             }
             catch (Exception ex)
             {

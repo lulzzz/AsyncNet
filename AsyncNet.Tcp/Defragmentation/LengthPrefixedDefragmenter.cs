@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using AsyncNet.Core.Exceptions;
 using AsyncNet.Core.Extensions;
 using AsyncNet.Tcp.Remote;
 
@@ -54,14 +53,7 @@ namespace AsyncNet.Tcp.Defragmentation
                 return ReadFrameResult.StreamClosedResult;
             }
 
-            try
-            {
-                frameLength = this.DefragmentationStrategy.GetFrameLength(readBuffer);
-            }
-            catch (Exception ex)
-            {
-                throw new AsyncNetUnhandledException(nameof(this.DefragmentationStrategy.GetFrameLength), ex);
-            }
+            frameLength = this.DefragmentationStrategy.GetFrameLength(readBuffer);
 
             if (frameLength < 1)
             {
