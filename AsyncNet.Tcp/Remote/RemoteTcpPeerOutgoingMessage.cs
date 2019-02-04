@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using System.Threading.Tasks;
 using AsyncNet.Core;
 
 namespace AsyncNet.Tcp.Remote
@@ -13,6 +14,7 @@ namespace AsyncNet.Tcp.Remote
             this.RemoteTcpPeer = remoteTcpPeer;
             this.Buffer = buffer;
             this.CancellationToken = cancellationToken;
+            this.SendTaskCompletionSource = new TaskCompletionSource<bool>();
         }
 
         public RemoteTcpPeer RemoteTcpPeer { get; }
@@ -20,5 +22,7 @@ namespace AsyncNet.Tcp.Remote
         public AsyncNetBuffer Buffer { get; }
 
         public CancellationToken CancellationToken { get; }
+
+        public TaskCompletionSource<bool> SendTaskCompletionSource { get; }
     }
 }

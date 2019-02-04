@@ -254,7 +254,7 @@ namespace AsyncNet.Udp.Client
         /// <returns>True - added to the send queue. False - send queue buffer is full or client is stopped</returns>
         public virtual bool Post(byte[] buffer, int offset, int count)
         {
-            return this.SendQueueActionBlock.Post(new UdpOutgoingPacket(this.TargetEndPoint, new Core.AsyncNetBuffer(buffer, offset, count)));
+            return this.SendQueueActionBlock.Post(new UdpOutgoingPacket(this.TargetEndPoint, new Core.AsyncNetBuffer(buffer, offset, count), CancellationToken.None));
         }
 
         /// <summary>
@@ -262,9 +262,9 @@ namespace AsyncNet.Udp.Client
         /// </summary>
         /// <param name="data">Data to send</param>
         /// <returns>True - added to the send queue. False - client is stopped</returns>
-        public virtual Task<bool> SendAsync(byte[] data)
+        public virtual Task<bool> AddToSendQueueAsync(byte[] data)
         {
-            return this.SendAsync(data, 0, data.Length);
+            return this.AddToSendQueueAsync(data, 0, data.Length);
         }
 
         /// <summary>
@@ -274,20 +274,20 @@ namespace AsyncNet.Udp.Client
         /// <param name="offset">Data offset in <paramref name="buffer" /></param>
         /// <param name="count">Numbers of bytes to send</param>
         /// <returns>True - added to the send queue. False - client is stopped</returns>
-        public virtual Task<bool> SendAsync(byte[] buffer, int offset, int count)
+        public virtual Task<bool> AddToSendQueueAsync(byte[] buffer, int offset, int count)
         {
-            return this.SendQueueActionBlock.SendAsync(new UdpOutgoingPacket(this.TargetEndPoint, new Core.AsyncNetBuffer(buffer, offset, count)));
+            return this.AddToSendQueueAsync(buffer, offset, count, CancellationToken.None);
         }
 
         /// <summary>
         /// Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data">Data to send</param>
         /// <param name="cancellationToken">Cancellation token for cancelling this operation</param>
         /// <returns>True - added to the send queue. False - client is stopped</returns>
-        public Task<bool> SendAsync(byte[] data, CancellationToken cancellationToken)
+        public Task<bool> AddToSendQueueAsync(byte[] data, CancellationToken cancellationToken)
         {
-            return this.SendAsync(data, 0, data.Length, cancellationToken);
+            return this.AddToSendQueueAsync(data, 0, data.Length, cancellationToken);
         }
 
         /// <summary>
@@ -298,7 +298,7 @@ namespace AsyncNet.Udp.Client
         /// <param name="count">Numbers of bytes to send</param>
         /// <param name="cancellationToken">Cancellation token for cancelling this operation</param>
         /// <returns>True - added to the send queue. False - client is stopped</returns>
-        public async Task<bool> SendAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        public async Task<bool> AddToSendQueueAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
             bool result;
 
@@ -307,11 +307,101 @@ namespace AsyncNet.Udp.Client
                 try
                 {
                     result = await this.SendQueueActionBlock.SendAsync(
-                        new UdpOutgoingPacket(this.TargetEndPoint, new Core.AsyncNetBuffer(buffer, offset, count)),
-                        linkedCts.Token).ConfigureAwait(false);
+                            new UdpOutgoingPacket(this.TargetEndPoint, new Core.AsyncNetBuffer(buffer, offset, count), this.CancellationToken),
+                            linkedCts.Token).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException)
                 {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        if (!this.CancellationToken.IsCancellationRequested)
+                        {
+                            throw;
+                        }
+                    }
+
+                    result = false;
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Sends data asynchronously
+        /// </summary>
+        /// <param name="data">Data to send</param>
+        /// <returns>True - data was sent. False - client is stopped or underlying send buffer is full</returns>
+        public Task<bool> SendAsync(byte[] data)
+        {
+            return this.SendAsync(data, 0, data.Length, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Sends data asynchronously
+        /// </summary>
+        /// <param name="data">Data to send</param>
+        /// <param name="cancellationToken">Cancellation token for cancelling this operation</param>
+        /// <returns>True - data was sent. False - client is stopped or underlying send buffer is full</returns>
+        public Task<bool> SendAsync(byte[] data, CancellationToken cancellationToken)
+        {
+            return this.SendAsync(data, 0, data.Length, cancellationToken);
+        }
+
+        /// <summary>
+        /// Sends data asynchronously
+        /// </summary>
+        /// <param name="buffer">Buffer containing data to send</param>
+        /// <param name="offset">Data offset in <paramref name="buffer" /></param>
+        /// <param name="count">Numbers of bytes to send</param>
+        /// <returns>True - data was sent. False - client is stopped or underlying send buffer is full</returns>
+        public Task<bool> SendAsync(byte[] buffer, int offset, int count)
+        {
+            return this.SendAsync(buffer, offset, count, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Sends data asynchronously
+        /// </summary>
+        /// <param name="buffer">Buffer containing data to send</param>
+        /// <param name="offset">Data offset in <paramref name="buffer" /></param>
+        /// <param name="count">Numbers of bytes to send</param>
+        /// <param name="cancellationToken">Cancellation token for cancelling this operation</param>
+        /// <returns>True - data was sent. False - client is stopped or underlying send buffer is full</returns>
+        public virtual async Task<bool> SendAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            bool result;
+
+            using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(this.CancellationToken, cancellationToken))
+            {
+                var packet = new UdpOutgoingPacket(this.TargetEndPoint, new Core.AsyncNetBuffer(buffer, offset, count), linkedCts.Token);
+
+                try
+                {
+                    result = await this.SendQueueActionBlock.SendAsync(
+                        packet,
+                        linkedCts.Token).ConfigureAwait(false);
+
+                    if (!result)
+                    {
+                        return result;
+                    }
+
+                    using (linkedCts.Token.Register(() => packet.SendTaskCompletionSource.TrySetCanceled(linkedCts.Token)))
+                    {
+                        result = await packet.SendTaskCompletionSource.Task.ConfigureAwait(false);
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        if (!this.CancellationToken.IsCancellationRequested)
+                        {
+                            throw;
+                        }
+                    }
+
                     result = false;
                 }
             }
@@ -407,19 +497,29 @@ namespace AsyncNet.Udp.Client
             {
                 if (packet.Buffer.Offset == 0)
                 {
-                    numberOfBytesSent = await this.UdpClient.SendWithCancellationTokenAsync(packet.Buffer.Memory, packet.Buffer.Count, this.CancellationToken).ConfigureAwait(false);
+                    numberOfBytesSent = await this.UdpClient.SendWithCancellationTokenAsync(packet.Buffer.Memory, packet.Buffer.Count, packet.CancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
                     var bytes = packet.Buffer.ToBytes();
 
-                    numberOfBytesSent = await this.UdpClient.SendWithCancellationTokenAsync(bytes, bytes.Length, this.CancellationToken).ConfigureAwait(false);
+                    numberOfBytesSent = await this.UdpClient.SendWithCancellationTokenAsync(bytes, bytes.Length, packet.CancellationToken).ConfigureAwait(false);
                 }
 
                 if (numberOfBytesSent != packet.Buffer.Count)
                 {
+                    packet.SendTaskCompletionSource.TrySetResult(false);
+
                     this.OnUdpSendErrorOccured(new UdpSendErrorEventArgs(new UdpSendErrorData(packet, numberOfBytesSent, null)));
                 }
+                else
+                {
+                    packet.SendTaskCompletionSource.TrySetResult(true);
+                }
+            }
+            catch (OperationCanceledException ex)
+            {
+                packet.SendTaskCompletionSource.TrySetCanceled(ex.CancellationToken);
             }
             catch (Exception ex)
             {

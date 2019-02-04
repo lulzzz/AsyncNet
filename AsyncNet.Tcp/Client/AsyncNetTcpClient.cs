@@ -311,6 +311,12 @@ namespace AsyncNet.Tcp.Client
                     outgoingMessage.Buffer.Offset,
                     outgoingMessage.Buffer.Count,
                     outgoingMessage.CancellationToken).ConfigureAwait(false);
+
+                outgoingMessage.SendTaskCompletionSource.TrySetResult(true);
+            }
+            catch (OperationCanceledException ex)
+            {
+                outgoingMessage.SendTaskCompletionSource.TrySetCanceled(ex.CancellationToken);
             }
             catch (Exception ex)
             {

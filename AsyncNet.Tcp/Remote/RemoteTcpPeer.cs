@@ -106,9 +106,9 @@ namespace AsyncNet.Tcp.Remote
         /// </summary>
         /// <param name="data">Data to send</param>
         /// <returns>True - added to the send queue. False - this client/peer is disconnected</returns>
-        public virtual Task<bool> SendAsync(byte[] data)
+        public virtual Task<bool> AddToSendQueueAsync(byte[] data)
         {
-            return this.SendAsync(data, CancellationToken.None);
+            return this.AddToSendQueueAsync(data, CancellationToken.None);
         }
 
         /// <summary>
@@ -117,9 +117,9 @@ namespace AsyncNet.Tcp.Remote
         /// <param name="data">Data to send</param>
         /// <param name="cancellationToken">Cancellation token for cancelling this operation</param>
         /// <returns>True - added to the send queue. False - this client/peer is disconnected</returns>
-        public virtual Task<bool> SendAsync(byte[] data, CancellationToken cancellationToken)
+        public virtual Task<bool> AddToSendQueueAsync(byte[] data, CancellationToken cancellationToken)
         {
-            return this.SendAsync(data, 0, data.Length, cancellationToken);
+            return this.AddToSendQueueAsync(data, 0, data.Length, cancellationToken);
         }
 
         /// <summary>
@@ -129,9 +129,9 @@ namespace AsyncNet.Tcp.Remote
         /// <param name="offset">Data offset in <paramref name="buffer" /></param>
         /// <param name="count">Numbers of bytes to send</param>
         /// <returns>True - added to the send queue. False - send queue buffer is full or this client/peer is disconnected</returns>
-        public virtual Task<bool> SendAsync(byte[] buffer, int offset, int count)
+        public virtual Task<bool> AddToSendQueueAsync(byte[] buffer, int offset, int count)
         {
-            return this.SendAsync(buffer, offset, count, CancellationToken.None);
+            return this.AddToSendQueueAsync(buffer, offset, count, CancellationToken.None);
         }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace AsyncNet.Tcp.Remote
         /// <param name="count">Numbers of bytes to send</param>
         /// <param name="cancellationToken">Cancellation token for cancelling this operation</param>
         /// <returns>True - added to the send queue. False - send queue buffer is full or this client/peer is disconnected</returns>
-        public virtual async Task<bool> SendAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        public virtual async Task<bool> AddToSendQueueAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
             bool result;
 
@@ -159,6 +159,97 @@ namespace AsyncNet.Tcp.Remote
                 }
                 catch (OperationCanceledException)
                 {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        if (!this.cancellationTokenSource.IsCancellationRequested)
+                        {
+                            throw;
+                        }
+                    }
+
+                    result = false;
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Sends data asynchronously
+        /// </summary>
+        /// <param name="data">Data to send</param>
+        /// <returns>True - data was sent. False - this client/peer is disconnected</returns>
+        public Task<bool> SendAsync(byte[] data)
+        {
+            return this.SendAsync(data, 0, data.Length, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Sends data asynchronously
+        /// </summary>
+        /// <param name="data">Data to send</param>
+        /// <param name="cancellationToken">Cancellation token for cancelling this operation</param>
+        /// <returns>True - data was sent. False - this client/peer is disconnected</returns>
+        public Task<bool> SendAsync(byte[] data, CancellationToken cancellationToken)
+        {
+            return this.SendAsync(data, 0, data.Length, cancellationToken);
+        }
+
+        /// <summary>
+        /// Sends data asynchronously
+        /// </summary>
+        /// <param name="buffer">Buffer containing data to send</param>
+        /// <param name="offset">Data offset in <paramref name="buffer" /></param>
+        /// <param name="count">Numbers of bytes to send</param>
+        /// <returns>True - data was sent. False - this client/peer is disconnected</returns>
+        public Task<bool> SendAsync(byte[] buffer, int offset, int count)
+        {
+            return this.SendAsync(buffer, offset, count, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Sends data asynchronously
+        /// </summary>
+        /// <param name="buffer">Buffer containing data to send</param>
+        /// <param name="offset">Data offset in <paramref name="buffer" /></param>
+        /// <param name="count">Numbers of bytes to send</param>
+        /// <param name="cancellationToken">Cancellation token for cancelling this operation</param>
+        /// <returns>True - data was sent. False - this client/peer is disconnected</returns>
+        public virtual async Task<bool> SendAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            bool result;
+
+            using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(this.cancellationTokenSource.Token, cancellationToken))
+            {
+                var message = new RemoteTcpPeerOutgoingMessage(
+                                this,
+                                new AsyncNetBuffer(buffer, offset, count),
+                                linkedCts.Token);
+
+                try
+                {
+                    result = await this.sendQueue.SendAsync(message, linkedCts.Token).ConfigureAwait(false);
+
+                    if (!result)
+                    {
+                        return result;
+                    }
+
+                    using (linkedCts.Token.Register(() => message.SendTaskCompletionSource.TrySetCanceled(linkedCts.Token)))
+                    {
+                        result = await message.SendTaskCompletionSource.Task.ConfigureAwait(false);
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        if (!this.cancellationTokenSource.IsCancellationRequested)
+                        {
+                            throw;
+                        }
+                    }
+
                     result = false;
                 }
             }

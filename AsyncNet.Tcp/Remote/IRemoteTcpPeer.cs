@@ -83,7 +83,7 @@ namespace AsyncNet.Tcp.Remote
         /// </summary>
         /// <param name="data">Data to send</param>
         /// <returns>True - added to the send queue. False - this client/peer is disconnected</returns>
-        Task<bool> SendAsync(byte[] data);
+        Task<bool> AddToSendQueueAsync(byte[] data);
 
         /// <summary>
         /// Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
@@ -91,7 +91,7 @@ namespace AsyncNet.Tcp.Remote
         /// <param name="data">Data to send</param>
         /// <param name="cancellationToken">Cancellation token for cancelling this operation</param>
         /// <returns>True - added to the send queue. False - this client/peer is disconnected</returns>
-        Task<bool> SendAsync(byte[] data, CancellationToken cancellationToken);
+        Task<bool> AddToSendQueueAsync(byte[] data, CancellationToken cancellationToken);
 
         /// <summary>
         /// Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
@@ -100,7 +100,7 @@ namespace AsyncNet.Tcp.Remote
         /// <param name="offset">Data offset in <paramref name="buffer"/></param>
         /// <param name="count">Numbers of bytes to send</param>
         /// <returns>True - added to the send queue. False - send queue buffer is full or this client/peer is disconnected</returns>
-        Task<bool> SendAsync(byte[] buffer, int offset, int count);
+        Task<bool> AddToSendQueueAsync(byte[] buffer, int offset, int count);
 
         /// <summary>
         /// Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
@@ -110,6 +110,40 @@ namespace AsyncNet.Tcp.Remote
         /// <param name="count">Numbers of bytes to send</param>
         /// <param name="cancellationToken">Cancellation token for cancelling this operation</param>
         /// <returns>True - added to the send queue. False - send queue buffer is full or this client/peer is disconnected</returns>
+        Task<bool> AddToSendQueueAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Sends data asynchronously
+        /// </summary>
+        /// <param name="data">Data to send</param>
+        /// <returns>True - data was sent. False - this client/peer is disconnected</returns>
+        Task<bool> SendAsync(byte[] data);
+
+        /// <summary>
+        /// Sends data asynchronously
+        /// </summary>
+        /// <param name="data">Data to send</param>
+        /// <param name="cancellationToken">Cancellation token for cancelling this operation</param>
+        /// <returns>True - data was sent. False - this client/peer is disconnected</returns>
+        Task<bool> SendAsync(byte[] data, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Sends data asynchronously
+        /// </summary>
+        /// <param name="buffer">Buffer containing data to send</param>
+        /// <param name="offset">Data offset in <paramref name="buffer"/></param>
+        /// <param name="count">Numbers of bytes to send</param>
+        /// <returns>True - data was sent. False - this client/peer is disconnected</returns>
+        Task<bool> SendAsync(byte[] buffer, int offset, int count);
+
+        /// <summary>
+        /// Sends data asynchronously
+        /// </summary>
+        /// <param name="buffer">Buffer containing data to send</param>
+        /// <param name="offset">Data offset in <paramref name="buffer"/></param>
+        /// <param name="count">Numbers of bytes to send</param>
+        /// <param name="cancellationToken">Cancellation token for cancelling this operation</param>
+        /// <returns>True - data was sent. False - this client/peer is disconnected</returns>
         Task<bool> SendAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken);
 
         /// <summary>

@@ -8,16 +8,16 @@ namespace AsyncNet.Udp.Error
     {
         public UdpSendErrorData(
             UdpOutgoingPacket packet,
-            int numberOfBytesSent, 
+            int numberOfBytesWrittenToTheSendBuffer,
             Exception exception) : base(exception)
         {
             this.Packet = packet;
-            this.NumberOfBytesSent = numberOfBytesSent;
+            this.NumberOfBytesWrittenToTheSendBuffer = numberOfBytesWrittenToTheSendBuffer;
         }
 
         public UdpOutgoingPacket Packet { get; }
 
-        public int NumberOfBytesSent { get; }
+        public int NumberOfBytesWrittenToTheSendBuffer { get; }
 
         public UdpSendErrorType SendErrorType
         {

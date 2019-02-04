@@ -98,7 +98,7 @@ namespace AsyncNet.Udp.Server
         /// <param name="count">Numbers of bytes to send</param>
         /// <param name="remoteEndPoint">Client/peer endpoint</param>
         /// <returns>True - added to the send queue. False - server is stopped</returns>
-        Task<bool> SendAsync(byte[] buffer, int offset, int count, IPEndPoint remoteEndPoint);
+        Task<bool> AddToSendQueueAsync(byte[] buffer, int offset, int count, IPEndPoint remoteEndPoint);
 
         /// <summary>
         /// Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
@@ -109,7 +109,7 @@ namespace AsyncNet.Udp.Server
         /// <param name="remoteEndPoint">Client/peer endpoint</param>
         /// <param name="cancellationToken">Cancellation token for cancelling this operation</param>
         /// <returns>True - added to the send queue. False - server is stopped</returns>
-        Task<bool> SendAsync(byte[] buffer, int offset, int count, IPEndPoint remoteEndPoint, CancellationToken cancellationToken);
+        Task<bool> AddToSendQueueAsync(byte[] buffer, int offset, int count, IPEndPoint remoteEndPoint, CancellationToken cancellationToken);
 
         /// <summary>
         /// Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
@@ -117,7 +117,7 @@ namespace AsyncNet.Udp.Server
         /// <param name="data">Data to send</param>
         /// <param name="remoteEndPoint">Client/peer endpoint</param>
         /// <returns>True - added to the send queue. False - server is stopped</returns>
-        Task<bool> SendAsync(byte[] data, IPEndPoint remoteEndPoint);
+        Task<bool> AddToSendQueueAsync(byte[] data, IPEndPoint remoteEndPoint);
 
         /// <summary>
         /// Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
@@ -126,6 +126,44 @@ namespace AsyncNet.Udp.Server
         /// <param name="remoteEndPoint">Client/peer endpoint</param>
         /// <param name="cancellationToken">Cancellation token for cancelling this operation</param>
         /// <returns>True - added to the send queue. False - server is stopped</returns>
+        Task<bool> AddToSendQueueAsync(byte[] data, IPEndPoint remoteEndPoint, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Sends data asynchronously
+        /// </summary>
+        /// <param name="buffer">Buffer containing data to send</param>
+        /// <param name="offset">Data offset in <paramref name="buffer"/></param>
+        /// <param name="count">Numbers of bytes to send</param>
+        /// <param name="remoteEndPoint">Client/peer endpoint</param>
+        /// <returns>True - data was sent. False - server is stopped or underlying send buffer is full</returns>
+        Task<bool> SendAsync(byte[] buffer, int offset, int count, IPEndPoint remoteEndPoint);
+
+        /// <summary>
+        /// Sends data asynchronously
+        /// </summary>
+        /// <param name="buffer">Buffer containing data to send</param>
+        /// <param name="offset">Data offset in <paramref name="buffer"/></param>
+        /// <param name="count">Numbers of bytes to send</param>
+        /// <param name="remoteEndPoint">Client/peer endpoint</param>
+        /// <param name="cancellationToken">Cancellation token for cancelling this operation</param>
+        /// <returns>True - data was sent. False - server is stopped or underlying send buffer is full</returns>
+        Task<bool> SendAsync(byte[] buffer, int offset, int count, IPEndPoint remoteEndPoint, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Sends data asynchronously
+        /// </summary>
+        /// <param name="data">Data to send</param>
+        /// <param name="remoteEndPoint">Client/peer endpoint</param>
+        /// <returns>True - data was sent. False - server is stopped or underlying send buffer is full</returns>
+        Task<bool> SendAsync(byte[] data, IPEndPoint remoteEndPoint);
+
+        /// <summary>
+        /// Sends data asynchronously
+        /// </summary>
+        /// <param name="data">Data to send</param>
+        /// <param name="remoteEndPoint">Client/peer endpoint</param>
+        /// <param name="cancellationToken">Cancellation token for cancelling this operation</param>
+        /// <returns>True - data was sent. False - server is stopped or underlying send buffer is full</returns>
         Task<bool> SendAsync(byte[] data, IPEndPoint remoteEndPoint, CancellationToken cancellationToken);
 
         /// <summary>

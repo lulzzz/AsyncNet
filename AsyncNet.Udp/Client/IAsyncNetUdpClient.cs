@@ -102,33 +102,67 @@ namespace AsyncNet.Udp.Client
         /// </summary>
         /// <param name="data">Data to send</param>
         /// <returns>True - added to the send queue. False - client is stopped</returns>
+        Task<bool> AddToSendQueueAsync(byte[] data);
+
+        /// <summary>
+        /// Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+        /// </summary>
+        /// <param name="data">Data to send</param>
+        /// <param name="cancellationToken">Cancellation token for cancelling this operation</param>
+        /// <returns>True - added to the send queue. False - client is stopped</returns>
+        Task<bool> AddToSendQueueAsync(byte[] data, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+        /// </summary>
+        /// <param name="buffer">Buffer containing data to send</param>
+        /// <param name="offset">Data offset in <paramref name="buffer"/></param>
+        /// <param name="count">Numbers of bytes to send</param>
+        /// <returns>True - added to the send queue. False - client is stopped</returns>
+        Task<bool> AddToSendQueueAsync(byte[] buffer, int offset, int count);
+
+        /// <summary>
+        /// Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+        /// </summary>
+        /// <param name="buffer">Buffer containing data to send</param>
+        /// <param name="offset">Data offset in <paramref name="buffer"/></param>
+        /// <param name="count">Numbers of bytes to send</param>
+        /// <param name="cancellationToken">Cancellation token for cancelling this operation</param>
+        /// <returns>True - added to the send queue. False - client is stopped</returns>
+        Task<bool> AddToSendQueueAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Sends data asynchronously
+        /// </summary>
+        /// <param name="data">Data to send</param>
+        /// <returns>True - data was sent. False - client is stopped or underlying send buffer is full</returns>
         Task<bool> SendAsync(byte[] data);
 
         /// <summary>
-        /// Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+        /// Sends data asynchronously
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data">Data to send</param>
         /// <param name="cancellationToken">Cancellation token for cancelling this operation</param>
-        /// <returns>True - added to the send queue. False - client is stopped</returns>
+        /// <returns>True - data was sent. False - client is stopped or underlying send buffer is full</returns>
         Task<bool> SendAsync(byte[] data, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+        /// Sends data asynchronously
         /// </summary>
         /// <param name="buffer">Buffer containing data to send</param>
         /// <param name="offset">Data offset in <paramref name="buffer"/></param>
         /// <param name="count">Numbers of bytes to send</param>
-        /// <returns>True - added to the send queue. False - client is stopped</returns>
+        /// <returns>True - data was sent. False - client is stopped or underlying send buffer is full</returns>
         Task<bool> SendAsync(byte[] buffer, int offset, int count);
 
         /// <summary>
-        /// Adds data to the send queue. It will wait asynchronously if the send queue buffer is full
+        /// Sends data asynchronously
         /// </summary>
         /// <param name="buffer">Buffer containing data to send</param>
         /// <param name="offset">Data offset in <paramref name="buffer"/></param>
         /// <param name="count">Numbers of bytes to send</param>
         /// <param name="cancellationToken">Cancellation token for cancelling this operation</param>
-        /// <returns>True - added to the send queue. False - client is stopped</returns>
+        /// <returns>True - data was sent. False - client is stopped or underlying send buffer is full</returns>
         Task<bool> SendAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken);
 
         /// <summary>
